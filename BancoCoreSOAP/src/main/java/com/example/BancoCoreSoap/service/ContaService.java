@@ -1,14 +1,25 @@
 package com.example.BancoCoreSoap.service;
 
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.BancoCoreSoap.repository.ClienteRepository;
 import com.example.BancoCoreSoap.repository.ContaRepository;
+import com.example.BancoCoreSoap.repository.TransacaoRepository;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.banco.gen.CriarContaResponse;
+import com.example.demo.banco.gen.RealizarTransferenciaTEDRequest;
+import com.example.demo.banco.gen.RealizarTransferenciaTEDResponse;
 import com.example.demo.banco.gen.CriarContaRequest;
 import com.example.BancoCoreSoap.domain.Cliente;
 import com.example.BancoCoreSoap.domain.Conta;
+import com.example.BancoCoreSoap.domain.TipoTransacao;
+import com.example.BancoCoreSoap.domain.Transacao;
 
 @Service
 public class ContaService {
@@ -18,6 +29,9 @@ public class ContaService {
 	
 	@Autowired
 	private ContaRepository contaRepository;
+	
+	@Autowired
+	private TransacaoRepository transacaoRepository;
 	
 	@Transactional
 	public CriarContaResponse create(CriarContaRequest request) {
@@ -37,5 +51,53 @@ public class ContaService {
 		 response.setNomeCliente(savedConta.getCliente().getNome());
 		 
 		 return response;
+	}
+	
+	@Transactional
+	public RealizarTransferenciaTEDResponse realizarTransferencia(RealizarTransferenciaTEDRequest request) {
+
+		Conta contaOrigem = contaRepository.findByNumeroConta(request.getContaOrigem().trim())
+		        .orElseThrow(() -> new RuntimeException("Conta de origem não encontrada"));
+
+		Conta contaDestino = contaRepository.findByNumeroConta(request.getContaDestino().trim())
+		        .orElseThrow(() -> new RuntimeException("Conta de destino não encontrada"));
+		
+		if (contaOrigem.getSaldo().compareTo(request.getValor()) < 0) {
+			throw new RuntimeException("Saldo insuficiente");
+		}
+		
+		BigDecimal novoSaldoOrigem = contaOrigem.getSaldo().subtract(request.getValor());
+		contaOrigem.setSaldo(novoSaldoOrigem);
+		
+		BigDecimal novoSaldoDestino = contaDestino.getSaldo().add(request.getValor());
+		contaDestino.setSaldo(novoSaldoDestino);
+		
+		LocalDateTime agoraBrasilia = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+		
+		Transacao debito = new Transacao();
+		debito.setConta(contaOrigem);
+		debito.setDataHora(agoraBrasilia);
+		debito.setTipo(TipoTransacao.TED);
+		debito.setValor(request.getValor().negate());
+		
+		Transacao credito = new Transacao();
+		credito.setConta(contaDestino);
+		credito.setDataHora(agoraBrasilia);
+		credito.setTipo(TipoTransacao.TED);
+		credito.setValor(request.getValor());
+		
+		Transacao savedDebito = transacaoRepository.save(debito);
+		Transacao savedCredito = transacaoRepository.save(credito);
+		
+		RealizarTransferenciaTEDResponse response = new RealizarTransferenciaTEDResponse();
+		response.setStatus("SUCESSO");
+		response.setMensagem("Transferencia TED realizada com sucesso.");
+		response.setNovoSaldoDestino(novoSaldoDestino);
+		response.setNovoSaldoOrigem(novoSaldoOrigem);
+		response.setTransacaoCreditoId(savedCredito.getId());
+		response.setTransacaoDebitoId(savedDebito.getId());
+		response.setStatus(null);
+		
+		return response;
 	}
 }

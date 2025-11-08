@@ -59,5 +59,25 @@
 	        </xs:sequence>
 	    </xs:complexType>
 	</xs:element>
+	<xs:element name="realizarTransferenciaTEDRequest">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="contaOrigem" type="xs:string"/> 
+	            <xs:element name="contaDestino" type="xs:string"/>
+	            <xs:element name="valor" type="xs:decimal"/> 
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+	
+	<xs:element name="realizarTransferenciaTEDResponse">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="status" type="xs:string"/> <xs:element name="mensagem" type="xs:string"/> <xs:element name="novoSaldoOrigem" type="xs:decimal"/>
+	            <xs:element name="novoSaldoDestino" type="xs:decimal"/>
+	            <xs:element name="transacaoDebitoId" type="xs:long"/>
+	            <xs:element name="transacaoCreditoId" type="xs:long"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
 
 </xs:schema>
