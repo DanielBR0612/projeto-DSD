@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://www.example.com/demo/banco"
+           targetNamespace="http://www.example.com/demo/banco"
+           elementFormDefault="qualified">
+
+    <xs:element name="consultarSaldoRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="numeroConta" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="consultarSaldoResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="saldo" type="xs:decimal"/>
+                <xs:element name="nomeCliente" type="xs:string"/>
+                <xs:element name="numeroConta" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	    <xs:element name="criarClienteRequest">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="nome" type="xs:string"/>
+	            <xs:element name="cpf" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+	
+	<xs:element name="criarClienteResponse">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="id" type="xs:long"/>
+	            <xs:element name="nome" type="xs:string"/>
+	            <xs:element name="cpf" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+
+</xs:schema>
