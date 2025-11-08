@@ -2,8 +2,11 @@ package com.example.BancoCoreSoap;
 
 import com.example.demo.banco.gen.ConsultarSaldoRequest;
 import com.example.demo.banco.gen.ConsultarSaldoResponse;
+import com.example.demo.banco.gen.CriarClienteRequest;
+import com.example.demo.banco.gen.CriarClienteResponse;
 import com.example.BancoCoreSoap.domain.Conta; 
-import com.example.BancoCoreSoap.repository.ContaRepository; 
+import com.example.BancoCoreSoap.repository.ContaRepository;
+import com.example.BancoCoreSoap.service.ClienteService;
 import com.example.BancoCoreSoap.repository.ClienteRepository; 
 
 import org.springframework.beans.factory.annotation.Autowired; 
@@ -22,17 +25,15 @@ public class BancoEndpoint {
 
     private final ContaRepository contaRepository;
     
-    private final ClienteRepository clienteRepository;
+    
+    @Autowired
+    private ClienteService clienteService;
 
     @Autowired
-    public BancoEndpoint(ContaRepository contaRepository) {
+    public BancoEndpoint(ContaRepository contaRepository, ClienteRepository clienteRepository) {
         this.contaRepository = contaRepository;
     }
     
-    @Autowired
-    public BancoEndpoint(ClienteRepository clienteRepository) {
-    	this.clienteRepository = clienteRepository;
-    }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "consultarSaldoRequest")
     @ResponsePayload
@@ -57,7 +58,7 @@ public class BancoEndpoint {
             }
             
         } else {
-            response.setSaldo(BigDecimal.ZERO); // Saldo zero
+            response.setSaldo(BigDecimal.ZERO);
             response.setNomeCliente("CONTA NÃO ENCONTRADA");
             response.setNumeroConta(request.getNumeroConta());
         }
@@ -65,9 +66,12 @@ public class BancoEndpoint {
         return response; 
     }
     
-    @PayloadRoot(namespace = NAMESIApACE_URI, localPart = "criarClienteRequest")
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "criarClienteRequest")
     @ResponsePayload
     public CriarClienteResponse criarCliente(@RequestPayload CriarClienteRequest request) {
+    	CriarClienteResponse createdCliente = clienteService.create(request);
+    	
+    	return createdCliente;
     }
   
 }

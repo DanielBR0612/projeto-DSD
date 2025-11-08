@@ -1,12 +1,8 @@
 package com.example.BancoCoreSoap.domain;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
 import java.util.List;
 
 @Entity 
@@ -14,6 +10,9 @@ import java.util.List;
 public class Conta {
 
     @Id 
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
     private String numeroConta;
 
     private BigDecimal saldo;

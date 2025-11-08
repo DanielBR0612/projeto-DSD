@@ -37,15 +37,19 @@ public class Cliente {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public String getNome() {
-        return nome;
+        return this.nome;
     }
 
     public String getCpf() {
-        return cpf;
+        return this.cpf;
+    }
+    
+    public List<Conta> getNumeroConta() {
+    	return this.contas;
     }
 
     public void setNumeroConta(Long id) {

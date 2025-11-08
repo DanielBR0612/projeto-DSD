@@ -39,5 +39,25 @@
 	        </xs:sequence>
 	    </xs:complexType>
 	</xs:element>
+	<xs:element name="criarContaRequest">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="clienteId" type="xs:long"/> 
+	            <xs:element name="numeroConta" type="xs:string"/>
+	            <xs:element name="saldoInicial" type="xs:decimal"/> 
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+	
+	<xs:element name="criarContaResponse">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="id" type="xs:long"/>
+	            <xs:element name="numeroConta" type="xs:string"/>
+	            <xs:element name="saldo" type="xs:decimal"/>
+	            <xs:element name="nomeCliente" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
 
 </xs:schema>
