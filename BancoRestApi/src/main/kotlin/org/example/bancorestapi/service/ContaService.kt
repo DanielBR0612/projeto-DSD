@@ -35,7 +35,6 @@ class ContaService (
             ?: throw RuntimeException("Chave pix não encontrada")
 
         val contaDestinoDaChave: Conta = chavePix.conta
-            ?: throw RuntimeException("a chave PIX: '${request.chaveDestino}' não esta associada a nenhuma conta")
 
         val idDestino = contaDestinoDaChave.id
             ?: throw RuntimeException("A chave PIX não tem ID de conta associado")

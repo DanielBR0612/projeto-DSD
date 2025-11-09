@@ -18,5 +18,5 @@ class ChavePix {
 
     @ManyToOne
     @JoinColumn(name = "conta_id")
-    var conta: Conta? = null
+    lateinit var conta: Conta
 }
