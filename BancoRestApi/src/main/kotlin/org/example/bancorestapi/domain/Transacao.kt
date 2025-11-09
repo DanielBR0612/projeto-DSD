@@ -3,6 +3,7 @@ package org.example.bancorestapi.domain
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import org.example.bancorestapi.domain.TipoTransacao
 
 @Entity
 @Table(name = "transacao")
@@ -12,16 +13,15 @@ class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    var valor: BigDecimal? = null
+    lateinit var valor: BigDecimal
 
-    var dataHora: LocalDateTime? = null
-
-    var tipo: TipoTransacao? = null
+    lateinit var dataHora: LocalDateTime
 
     @Enumerated(EnumType.STRING)
+    lateinit var tipo: TipoTransacao
 
     @ManyToOne
     @JoinColumn(name = "conta_id")
-    var conta: Conta? = null
+    lateinit var conta: Conta
 }
 

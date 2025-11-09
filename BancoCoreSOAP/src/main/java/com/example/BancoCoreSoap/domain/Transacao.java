@@ -16,9 +16,8 @@ public class Transacao {
 	
 	private LocalDateTime dataHora;
 	
-	private TipoTransacao tipo;
-	
 	@Enumerated(EnumType.STRING)
+	private TipoTransacao tipo;
 	
 	@ManyToOne
 	@JoinColumn(name = "conta_id")
