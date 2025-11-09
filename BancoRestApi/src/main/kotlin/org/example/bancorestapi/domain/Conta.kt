@@ -1,5 +1,6 @@
 package org.example.bancorestapi.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -20,6 +21,7 @@ class Conta {
     @JoinColumn(name = "cliente_id")
     var cliente: Cliente? = null
 
+    @JsonIgnore
     @OneToMany(mappedBy = "conta", cascade = [CascadeType.ALL])
     var transacoes: List<Transacao> = mutableListOf()
 }

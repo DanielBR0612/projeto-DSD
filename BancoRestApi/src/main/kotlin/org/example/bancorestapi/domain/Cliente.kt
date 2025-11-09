@@ -1,5 +1,6 @@
 package org.example.bancorestapi.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
@@ -15,6 +16,7 @@ public class Cliente {
 
     var nome: String? = null
 
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL])
     var contas: List<Conta> = mutableListOf()
 }

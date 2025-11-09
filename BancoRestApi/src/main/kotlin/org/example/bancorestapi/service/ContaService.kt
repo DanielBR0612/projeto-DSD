@@ -7,6 +7,8 @@ import org.example.bancorestapi.dto.PixTransferResponseDTO
 import org.example.bancorestapi.domain.Conta
 import org.example.bancorestapi.domain.TipoTransacao
 import org.example.bancorestapi.domain.Transacao
+import org.example.bancorestapi.domain.toResponseDTO
+import org.example.bancorestapi.dto.ChavePixResponseDTO
 import org.example.bancorestapi.repository.ChavePixRepository
 import org.example.bancorestapi.repository.ContaRepository
 import org.example.bancorestapi.repository.TransacaoRepository
@@ -78,5 +80,18 @@ class ContaService (
         )
 
         return response
+    }
+
+    @Transactional
+    fun getChavePix(numeroConta: String) : List<ChavePixResponseDTO> {
+        val conta: Conta = contaRepository.findByNumeroConta(numeroConta)
+            ?: throw RuntimeException("Esse numero não corresponde a nenhuma conta")
+
+        val chavesPixEncontradas: List<ChavePix> = chavePixRepository.findByConta(conta)
+
+        return chavesPixEncontradas.map { chavePix ->
+            chavePix.toResponseDTO()
+        }
+
     }
 }
