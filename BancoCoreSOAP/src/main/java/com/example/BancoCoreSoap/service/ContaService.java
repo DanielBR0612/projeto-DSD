@@ -66,6 +66,10 @@ public class ContaService {
 			throw new RuntimeException("Saldo insuficiente");
 		}
 		
+		if (contaOrigem.getNumeroConta() == contaDestino.getNumeroConta()) {
+			throw new RuntimeException("Não pode realizar uma transferencia para a mesma conta");
+		}
+		
 		BigDecimal novoSaldoOrigem = contaOrigem.getSaldo().subtract(request.getValor());
 		contaOrigem.setSaldo(novoSaldoOrigem);
 		
@@ -96,7 +100,6 @@ public class ContaService {
 		response.setNovoSaldoOrigem(novoSaldoOrigem);
 		response.setTransacaoCreditoId(savedCredito.getId());
 		response.setTransacaoDebitoId(savedDebito.getId());
-		response.setStatus(null);
 		
 		return response;
 	}

@@ -12,9 +12,9 @@ class Conta {
     var id: Long? = null
 
     @Column(unique = true)
-    var numeroConta: String? = null
+    lateinit var numeroConta: String
 
-    var saldo: BigDecimal? = null
+    lateinit var saldo: BigDecimal
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
