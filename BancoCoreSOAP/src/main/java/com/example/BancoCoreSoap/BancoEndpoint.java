@@ -1,5 +1,7 @@
 package com.example.BancoCoreSoap;
 
+import com.example.demo.banco.gen.AlterarSenhaAcessoRequest;
+import com.example.demo.banco.gen.AlterarSenhaAcessoResponse;
 import com.example.demo.banco.gen.ConsultarSaldoRequest;
 import com.example.demo.banco.gen.ConsultarSaldoResponse;
 import com.example.demo.banco.gen.CriarClienteRequest;
@@ -12,6 +14,7 @@ import com.example.BancoCoreSoap.domain.Conta;
 import com.example.BancoCoreSoap.repository.ContaRepository;
 import com.example.BancoCoreSoap.service.ClienteService;
 import com.example.BancoCoreSoap.service.ContaService;
+import com.example.BancoCoreSoap.service.UsuarioService;
 import com.example.BancoCoreSoap.repository.ClienteRepository; 
 
 import org.springframework.beans.factory.annotation.Autowired; 
@@ -36,6 +39,9 @@ public class BancoEndpoint {
     
     @Autowired
     private ContaService contaService;
+    
+    @Autowired
+    private UsuarioService usuarioService;
     
 
     @Autowired
@@ -95,6 +101,14 @@ public class BancoEndpoint {
     	RealizarTransferenciaTEDResponse transferenciaTED = contaService.realizarTransferencia(request);
     	
     	return transferenciaTED;
+    }
+    
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "alterarSenhaAcessoRequest")
+    @ResponsePayload
+    public AlterarSenhaAcessoResponse alterarSenha(@RequestPayload AlterarSenhaAcessoRequest request) {
+    	AlterarSenhaAcessoResponse senha = usuarioService.alterarSenha(request);
+    	
+    	return senha;
     }
   
 }

@@ -79,5 +79,24 @@
 	        </xs:sequence>
 	    </xs:complexType>
 	</xs:element>
+		<xs:element name="alterarSenhaAcessoRequest">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="numeroConta" type="xs:string"/> 
+	            <xs:element name="senhaAntiga" type="xs:string"/>
+	            <xs:element name="senhaNova" type="xs:string"/> 
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+	
+	<xs:element name="alterarSenhaAcessoResponse">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="status" type="xs:string"/> 
+			    <xs:element name="mensagem" type="xs:string"/>
+	            <xs:element name="numeroConta" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
 
 </xs:schema>
