@@ -62,9 +62,14 @@ public class Usuario {
         this.passwordHash = encoder.encode(password);
 	}
 	
+	public void setRole(Role role) {
+		this.role = role;
+	}
+	
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
 	}
+	
 	
 
 }

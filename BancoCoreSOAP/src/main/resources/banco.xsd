@@ -79,6 +79,25 @@
 	        </xs:sequence>
 	    </xs:complexType>
 	</xs:element>
+	<xs:element name="criarUsuarioRequest">
+	    <xs:complexType>
+	        <xs:sequence>
+	            <xs:element name="username" type="xs:string"/> 
+			    <xs:element name="password" type="xs:string"/>
+	            <xs:element name="role" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
+		<xs:element name="criarUsuarioResponse">
+	    <xs:complexType>
+	        <xs:sequence>
+	        	<xs:element name="id" type="xs:long"/> 
+	            <xs:element name="username" type="xs:string"/> 
+			    <xs:element name="password" type="xs:string"/>
+	            <xs:element name="role" type="xs:string"/>
+	        </xs:sequence>
+	    </xs:complexType>
+	</xs:element>
 		<xs:element name="alterarSenhaAcessoRequest">
 	    <xs:complexType>
 	        <xs:sequence>

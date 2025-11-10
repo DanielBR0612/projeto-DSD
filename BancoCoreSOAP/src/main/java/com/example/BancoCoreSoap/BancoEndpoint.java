@@ -8,6 +8,8 @@ import com.example.demo.banco.gen.CriarClienteRequest;
 import com.example.demo.banco.gen.CriarClienteResponse;
 import com.example.demo.banco.gen.CriarContaRequest;
 import com.example.demo.banco.gen.CriarContaResponse;
+import com.example.demo.banco.gen.CriarUsuarioRequest;
+import com.example.demo.banco.gen.CriarUsuarioResponse;
 import com.example.demo.banco.gen.RealizarTransferenciaTEDRequest;
 import com.example.demo.banco.gen.RealizarTransferenciaTEDResponse;
 import com.example.BancoCoreSoap.domain.Conta; 
@@ -101,6 +103,14 @@ public class BancoEndpoint {
     	RealizarTransferenciaTEDResponse transferenciaTED = contaService.realizarTransferencia(request);
     	
     	return transferenciaTED;
+    }
+    
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "criarUsuarioRequest")
+    @ResponsePayload
+    public CriarUsuarioResponse criarUsuario(@RequestPayload CriarUsuarioRequest request) {
+    	CriarUsuarioResponse createdUsuario = usuarioService.create(request);
+    	
+    	return createdUsuario;
     }
     
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "alterarSenhaAcessoRequest")

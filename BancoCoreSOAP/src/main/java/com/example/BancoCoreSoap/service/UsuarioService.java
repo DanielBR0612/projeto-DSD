@@ -8,9 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.BancoCoreSoap.repository.ContaRepository;
 import com.example.BancoCoreSoap.repository.UsuarioRepository;
 import com.example.BancoCoreSoap.domain.Conta;
+import com.example.BancoCoreSoap.domain.Role;
 import com.example.BancoCoreSoap.domain.Usuario;
 import com.example.demo.banco.gen.AlterarSenhaAcessoRequest;
 import com.example.demo.banco.gen.AlterarSenhaAcessoResponse;
+import com.example.demo.banco.gen.CriarUsuarioRequest;
+import com.example.demo.banco.gen.CriarUsuarioResponse;
 
 @Service
 public class UsuarioService {
@@ -23,6 +26,26 @@ public class UsuarioService {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Transactional
+	public CriarUsuarioResponse create(CriarUsuarioRequest request) {
+		Role role = Role.valueOf(request.getRole());
+		
+		Usuario newUsuario = new Usuario();
+		newUsuario.setUsername(request.getUsername());
+		newUsuario.setPasswordHash(request.getPassword());
+		newUsuario.setRole(role);
+		
+		Usuario savedUsuario = usuarioRepository.save(newUsuario);
+		
+		CriarUsuarioResponse response = new CriarUsuarioResponse();
+		response.setId(savedUsuario.getId());
+		response.setUsername(savedUsuario.getUsername());
+		response.setPassword(savedUsuario.getPasswordHash());
+		response.setRole(savedUsuario.getRole().name());
+		
+		return response;
+	}
 	
 	
 	@Transactional
