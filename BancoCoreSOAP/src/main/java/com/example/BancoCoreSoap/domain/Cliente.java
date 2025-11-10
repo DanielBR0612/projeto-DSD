@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import java.util.List;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 
@@ -26,14 +27,18 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Conta> contas;
     
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private Usuario usuario;
+    
     public Cliente() {
     }
 
-    public Cliente(Long id, String nome, String cpf, List<Conta> contas) {
+    public Cliente(Long id, String nome, String cpf, List<Conta> contas, Usuario usuario) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.contas = contas;
+        this.usuario = usuario;
     }
 
     public Long getId() {
@@ -48,8 +53,12 @@ public class Cliente {
         return this.cpf;
     }
     
-    public List<Conta> getNumeroConta() {
+    public List<Conta> getContas() {
     	return this.contas;
+    }
+    
+    public Usuario getUsuario() {
+    	return this.usuario;
     }
 
     public void setNumeroConta(Long id) {
@@ -68,4 +77,9 @@ public class Cliente {
     		this.cpf = cpf;
     	}
     }
+    
+    public void setUsuario(Usuario usuario) {
+    	this.usuario = usuario;
+    }
+
 }
