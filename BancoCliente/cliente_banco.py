@@ -7,20 +7,12 @@ GATEWAY_URL = "http://localhost:3000/banco"
 def consultar_saldo():
     print("\n--- Consultar Saldo ---")
     conta = input("Digite o número da conta: ")
-    print("Escolha o sistema:")
-    print("1. REST (Kotlin)")
-    print("2. SOAP (Java)")
-    escolha = input("Opção: ")
-    
-    tipo = "soap" if escolha == "2" else "rest"
     
     try:
-        # Chamada GET ao Gateway
-        response = requests.get(f"{GATEWAY_URL}/saldo", params={"conta": conta, "tipo": tipo})
+        response = requests.get(f"{GATEWAY_URL}/saldo", params={"conta": conta})
         
         if response.status_code == 200:
             dados = response.json()
-            print(f"\n✅ Sucesso [{tipo.upper()}]:")
             print(dados)
         else:
             print(f"\n❌ Erro {response.status_code}: {response.text}")
@@ -28,8 +20,8 @@ def consultar_saldo():
     except requests.exceptions.ConnectionError:
         print("\n❌ Erro: Não foi possível conectar ao Gateway (localhost:3000). Ele está rodando?")
 
-def realizar_transferencia():
-    print("\n--- Realizar Transferência (Pix/TED) ---")
+def realizar_transferencia_ted():
+    print("\n--- Realizar Transferência (TED) ---")
     origem = input("Conta Origem: ")
     destino = input("Conta Destino: ")
     valor = input("Valor: ")
