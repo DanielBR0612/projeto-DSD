@@ -17,7 +17,8 @@ import com.example.BancoCoreSoap.service.ContaService;
 import com.example.BancoCoreSoap.service.UsuarioService;
 import com.example.BancoCoreSoap.repository.ClienteRepository; 
 
-import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
@@ -52,12 +53,13 @@ public class BancoEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "consultarSaldoRequest")
     @ResponsePayload
+    @Transactional
     public ConsultarSaldoResponse consultarSaldo(@RequestPayload ConsultarSaldoRequest request) {
 
         Optional<Conta> contaOptional = contaRepository.findByNumeroConta(request.getNumeroConta());
 
         ConsultarSaldoResponse response = new ConsultarSaldoResponse();
-
+        
         if (contaOptional.isPresent()) {
             Conta conta = contaOptional.get(); 
             
