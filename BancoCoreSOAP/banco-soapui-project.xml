@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="7e87c56d-4b15-445a-87d0-0415047737b8" activeEnvironment="Default" name="banco" resourceRoot="" soapui-version="5.9.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="5d09fb97-9d86-4993-baa1-b8612ec3a352" wsaVersion="NONE" name="BancoPortSoap11" type="wsdl" bindingName="{http://www.example.com/demo/banco}BancoPortSoap11" soapVersion="1_1" anonymous="optional" definition="http://localhost:8080/ws/banco.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/ws/banco.wsdl"><con:part><con:url>http://localhost:8080/ws/banco.wsdl</con:url><con:content><![CDATA[<wsdl:definitions targetNamespace="http://www.example.com/demo/banco" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch="http://www.example.com/demo/banco" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.com/demo/banco">
+  <wsdl:types>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.example.com/demo/banco" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="consultarSaldoRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="numeroConta" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="consultarSaldoResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="saldo" type="xs:decimal"/>
+            <xs:element name="nomeCliente" type="xs:string"/>
+            <xs:element name="numeroConta" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="criarClienteRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="nome" type="xs:string"/>
+            <xs:element name="cpf" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="criarClienteResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="id" type="xs:long"/>
+            <xs:element name="nome" type="xs:string"/>
+            <xs:element name="cpf" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="criarContaRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="clienteId" type="xs:long"/>
+            <xs:element name="numeroConta" type="xs:string"/>
+            <xs:element name="saldoInicial" type="xs:decimal"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="criarContaResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="id" type="xs:long"/>
+            <xs:element name="numeroConta" type="xs:string"/>
+            <xs:element name="saldo" type="xs:decimal"/>
+            <xs:element name="nomeCliente" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="realizarTransferenciaTEDRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="contaOrigem" type="xs:string"/>
+            <xs:element name="contaDestino" type="xs:string"/>
+            <xs:element name="valor" type="xs:decimal"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="realizarTransferenciaTEDResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="status" type="xs:string"/>
+            <xs:element name="mensagem" type="xs:string"/>
+            <xs:element name="novoSaldoOrigem" type="xs:decimal"/>
+            <xs:element name="novoSaldoDestino" type="xs:decimal"/>
+            <xs:element name="transacaoDebitoId" type="xs:long"/>
+            <xs:element name="transacaoCreditoId" type="xs:long"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="criarContaResponse">
+    <wsdl:part element="tns:criarContaResponse" name="criarContaResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="criarContaRequest">
+    <wsdl:part element="tns:criarContaRequest" name="criarContaRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="realizarTransferenciaTEDRequest">
+    <wsdl:part element="tns:realizarTransferenciaTEDRequest" name="realizarTransferenciaTEDRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="consultarSaldoResponse">
+    <wsdl:part element="tns:consultarSaldoResponse" name="consultarSaldoResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="criarClienteRequest">
+    <wsdl:part element="tns:criarClienteRequest" name="criarClienteRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="consultarSaldoRequest">
+    <wsdl:part element="tns:consultarSaldoRequest" name="consultarSaldoRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="criarClienteResponse">
+    <wsdl:part element="tns:criarClienteResponse" name="criarClienteResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="realizarTransferenciaTEDResponse">
+    <wsdl:part element="tns:realizarTransferenciaTEDResponse" name="realizarTransferenciaTEDResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="BancoPort">
+    <wsdl:operation name="criarConta">
+      <wsdl:input message="tns:criarContaRequest" name="criarContaRequest"></wsdl:input>
+      <wsdl:output message="tns:criarContaResponse" name="criarContaResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="realizarTransferenciaTED">
+      <wsdl:input message="tns:realizarTransferenciaTEDRequest" name="realizarTransferenciaTEDRequest"></wsdl:input>
+      <wsdl:output message="tns:realizarTransferenciaTEDResponse" name="realizarTransferenciaTEDResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="consultarSaldo">
+      <wsdl:input message="tns:consultarSaldoRequest" name="consultarSaldoRequest"></wsdl:input>
+      <wsdl:output message="tns:consultarSaldoResponse" name="consultarSaldoResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="criarCliente">
+      <wsdl:input message="tns:criarClienteRequest" name="criarClienteRequest"></wsdl:input>
+      <wsdl:output message="tns:criarClienteResponse" name="criarClienteResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BancoPortSoap11" type="tns:BancoPort">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="criarConta">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="criarContaRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="criarContaResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="realizarTransferenciaTED">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="realizarTransferenciaTEDRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="realizarTransferenciaTEDResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="consultarSaldo">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="consultarSaldoRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="consultarSaldoResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="criarCliente">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="criarClienteRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="criarClienteResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="BancoPortService">
+    <wsdl:port binding="tns:BancoPortSoap11" name="BancoPortSoap11">
+      <soap:address location="http://localhost:8080/ws"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/ws</con:endpoint></con:endpoints><con:operation id="c6f5c637-9920-4ec1-bed3-8147e9b867d9" isOneWay="false" action="" name="consultarSaldo" bindingOperationName="consultarSaldo" type="Request-Response" outputName="consultarSaldoResponse" inputName="consultarSaldoRequest" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="23133f2f-b6c5-4e0d-ad59-efd11114d7be" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:consultarSaldoRequest>
+         <ban:numeroConta>190612</ban:numeroConta>
+      </ban:consultarSaldoRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/consultarSaldoRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="6da6de8e-ef3e-48e5-b516-917cf966d767" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:consultarSaldoRequest>
+         <ban:numeroConta>?</ban:numeroConta>
+      </ban:consultarSaldoRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/consultarSaldoRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="bab6ee4b-cde7-4eeb-b954-e3390a770e70" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:consultarSaldoRequest>
+         <ban:numeroConta>?</ban:numeroConta>
+      </ban:consultarSaldoRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/consultarSaldoRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="3ca26622-2b82-4555-8346-dc42cd4e706f" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:consultarSaldoRequest>
+         <ban:numeroConta>?</ban:numeroConta>
+      </ban:consultarSaldoRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/consultarSaldoRequest"/></con:call></con:operation><con:operation id="61c65152-015c-4d7d-b8a0-ecb4904e6683" isOneWay="false" action="" name="criarConta" bindingOperationName="criarConta" type="Request-Response" outputName="criarContaResponse" inputName="criarContaRequest" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ee7e7622-9ced-4f9b-a3bd-f96c0f849241" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarContaRequest>
+         <ban:clienteId>1</ban:clienteId>
+         <ban:numeroConta>123456</ban:numeroConta>
+         <ban:saldoInicial>14000.0</ban:saldoInicial>
+      </ban:criarContaRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarContaRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="2fe25252-ef92-4bf3-bb1c-7ecec69ab2b4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarContaRequest>
+         <ban:clienteId>?</ban:clienteId>
+         <ban:numeroConta>?</ban:numeroConta>
+         <ban:saldoInicial>?</ban:saldoInicial>
+      </ban:criarContaRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarContaRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="01cbe0de-d56f-4d4e-b032-641d1a4231cc" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarContaRequest>
+         <ban:clienteId>?</ban:clienteId>
+         <ban:numeroConta>?</ban:numeroConta>
+         <ban:saldoInicial>?</ban:saldoInicial>
+      </ban:criarContaRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarContaRequest"/></con:call></con:operation><con:operation id="114d3b6a-c53b-4c63-b154-9611f921f9f6" isOneWay="false" action="" name="criarCliente" bindingOperationName="criarCliente" type="Request-Response" outputName="criarClienteResponse" inputName="criarClienteRequest" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="7cf7c6bc-021d-4867-be5d-f8e2d50e4981" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarClienteRequest>
+         <ban:nome>Andre Lira</ban:nome>
+         <ban:cpf>12345678901</ban:cpf>
+      </ban:criarClienteRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarClienteRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="76d72adb-165b-4077-9cb0-8d158f808456" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarClienteRequest>
+         <ban:nome>Daniel Braga</ban:nome>
+         <ban:cpf>10050657488</ban:cpf>
+      </ban:criarClienteRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarClienteRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call id="510ff996-a1d5-41a0-9fd6-d8d3d92fd632" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:criarClienteRequest>
+         <ban:nome>?</ban:nome>
+         <ban:cpf>?</ban:cpf>
+      </ban:criarClienteRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/criarClienteRequest"/></con:call></con:operation><con:operation id="5ad6073e-aa29-4217-9883-a53f94305e94" isOneWay="false" action="" name="realizarTransferenciaTED" bindingOperationName="realizarTransferenciaTED" type="Request-Response" outputName="realizarTransferenciaTEDResponse" inputName="realizarTransferenciaTEDRequest" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="43a3ea31-fe75-44a1-bbcf-83fd9c996a9b" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/ws</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ban="http://www.example.com/demo/banco">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ban:realizarTransferenciaTEDRequest>
+         <ban:contaOrigem>123456</ban:contaOrigem>
+         <ban:contaDestino>190612</ban:contaDestino>
+         <ban:valor>2000</ban:valor>
+      </ban:realizarTransferenciaTEDRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://www.example.com/demo/banco/BancoPort/realizarTransferenciaTEDRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>
