@@ -1,0 +1,7 @@
+import { Module } from '@nestjs/common';
+import { BancoCoreSoapService } from './banco-core-soap.service';
+
+@Module({
+  providers: [BancoCoreSoapService]
+})
+export class BancoCoreSoapModule {}
