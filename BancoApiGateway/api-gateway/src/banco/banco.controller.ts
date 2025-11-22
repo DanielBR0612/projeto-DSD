@@ -16,11 +16,10 @@ export class BancoController {
     }
 
     if (tipo === 'soap') {
-      // SOAP: O método no endpoint Java chama-se 'consultarSaldo'
-      // É provável que ele espere um objeto com a propriedade que define o número da conta
+  
       return await this.soapService.chamarServico('consultarSaldo', { numeroConta: conta });
     } else {
-      // REST: O endpoint correto é /extrato/{numeroConta}
+
       return await this.restService.get(`extrato/${conta}`);
     }
   }
@@ -28,11 +27,10 @@ export class BancoController {
   @Post('pix')
   async criarPix(@Body() body: any, @Query('tipo') tipo: string) {
     if (tipo === 'soap') {
-      // SOAP: Não existe Pix no serviço SOAP, apenas TED.
-      // Redirecionando para 'realizarTransferenciaTED' conforme contrato existente.
+
       return await this.soapService.chamarServico('realizarTransferenciaTED', body);
     } else {
-      // REST: O endpoint correto é /pix/transferir
+  
       return await this.restService.post('pix/transferir', body);
     }
   }
