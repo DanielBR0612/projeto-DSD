@@ -1,0 +1,30 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Compilados
+dist/
+build/
+
+# Ambiente
+.env
+.env.*.local
+
+# Configs de IDE/editor
+.vscode/
+.idea/
+*.swp
+
+# Cobertura de testes
+coverage/
+
+# Outros
+.DS_Store
+*.tgz
+
+# Log files
+logs
+*.log
