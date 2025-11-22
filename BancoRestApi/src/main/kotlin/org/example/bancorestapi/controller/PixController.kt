@@ -29,8 +29,8 @@ class PixController (
         return chavePixService.create(clienteId, requestDTO)
     }
 
-    @GetMapping("/clientes/{numero_conta}/chaves-pix")
-    fun getChavePix(@PathVariable("numero_conta") numeroConta: String) : List<ChavePixResponseDTO> {
+    @GetMapping("/clientes/{numeroConta}/chaves-pix")
+    fun getChavePix(@PathVariable("numeroConta") numeroConta: String) : List<ChavePixResponseDTO> {
         return contaService.getChavePix(numeroConta)
     }
 }

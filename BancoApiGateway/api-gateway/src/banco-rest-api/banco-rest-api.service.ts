@@ -34,6 +34,16 @@ export class BancoRestApiService {
     return this.post(endpoint, dadosPix)
   }
 
+  async getChavesPix(numeroConta: string) {
+    const endpoint = `clientes/${numeroConta}/chaves-pix`;
+    return this.get(endpoint);
+  }
+
+  async getExtrato(numeroConta: string) {
+    const endpoint = `extrato/${numeroConta}`;
+    return this.get(endpoint);
+  }
+
   private tratarErro(error: any) {
     console.error('Erro na chamada REST:', error.message);
     if (error.response) {
