@@ -6,6 +6,12 @@ import { HateoasInterceptor } from './common/hateoas.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Permitir CORS para todas as origens (inclui requests origin 'null' vindo de file://)
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  });
+  
   const config = new DocumentBuilder()
     .setTitle('API Gateway Bancário')
     .setDescription('Gateway para integração de serviços Legados (SOAP) e Modernos (REST)')
