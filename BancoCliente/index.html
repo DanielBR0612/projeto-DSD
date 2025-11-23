@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco DSD - Sistema Distribuído</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="ml-2 text-xl font-bold text-gray-800">Banco DSD</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-600">Sistema Distribuído SOAP + REST</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo ao Banco DSD</h1>
+            <p class="text-gray-600">Integração de sistemas legados (SOAP) e modernos (REST) via API Gateway</p>
+        </div>
+
+        <!-- Alert Box -->
+        <div id="alertBox" class="hidden mb-6 p-4 rounded-lg"></div>
+
+        <!-- Cards Container -->
+        <div class="grid md:grid-cols-2 gap-6">
+            
+            <!-- Card 1: Consultar Saldo -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+                <div class="flex items-center mb-4">
+                    <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Saldo</h2>
+                </div>
+                
+                <form id="formSaldo" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Número da Conta</label>
+                        <input type="text" id="contaSaldo" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Ex: 12345" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sistema</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="tipoSaldo" value="rest" checked class="mr-2">
+                                <span class="text-sm">REST (Kotlin)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="tipoSaldo" value="soap" class="mr-2">
+                                <span class="text-sm">SOAP (Java)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Consultar Saldo
+                    </button>
+                </form>
+
+                <!-- Resultado Saldo -->
+                <div id="resultSaldo" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
+                    <pre id="saldoData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+                </div>
+            </div>
+
+            <!-- Card 2: Realizar Transferência -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+                <div class="flex items-center mb-4">
+                    <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                    </svg>
+                    <h2 class="ml-3 text-2xl font-bold text-gray-800">Transferência</h2>
+                </div>
+                
+                <form id="formTransferencia" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Origem</label>
+                        <input type="text" id="contaOrigem" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Ex: 12345" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Destino</label>
+                        <input type="text" id="contaDestino" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Ex: 67890" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor (R$)</label>
+                        <input type="number" id="valorTransferencia" step="0.01" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Ex: 100.00" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Transferência</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="tipoTransferencia" value="rest" checked class="mr-2">
+                                <span class="text-sm">Pix (REST)</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="tipoTransferencia" value="soap" class="mr-2">
+                                <span class="text-sm">TED (SOAP)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
+                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Realizar Transferência
+                    </button>
+                </form>
+
+                <!-- Resultado Transferência -->
+                <div id="resultTransferencia" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-bold text-blue-800 mb-2">Resultado:</h3>
+                    <pre id="transferenciaData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Info Section -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">ℹ️ Sobre o Sistema</h3>
+            <div class="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2">🔧 API Gateway</h4>
+                    <p>NestJS rodando na porta 3000. Orquestra chamadas para SOAP e REST.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2">☕ Backend SOAP</h4>
+                    <p>Java Spring Boot (porta 8080). Sistema legado com operações tradicionais.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2">🚀 Backend REST</h4>
+                    <p>Kotlin Spring Boot (porta 8081). Sistema moderno com Pix e Extrato.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 text-center text-gray-600">
+        <p>Sistema Bancário Distribuído - Projeto DSD 2025</p>
+        <p class="text-sm mt-1">Daniel Braga & Josephy Cruz Araújo</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const GATEWAY_URL = 'http://localhost:3000/banco';
+
+        // Função para exibir alertas
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `mb-6 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'}`;
+            alertBox.textContent = message;
+            alertBox.classList.remove('hidden');
+            
+            setTimeout(() => alertBox.classList.add('hidden'), 5000);
+        }
+
+        // Consultar Saldo
+        document.getElementById('formSaldo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const conta = document.getElementById('contaSaldo').value;
+            const tipo = document.querySelector('input[name="tipoSaldo"]:checked').value;
+            
+            try {
+                const response = await fetch(`${GATEWAY_URL}/saldo?conta=${conta}&tipo=${tipo}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('saldoData').textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('resultSaldo').classList.remove('hidden');
+                    showAlert(`✅ Saldo consultado com sucesso via ${tipo.toUpperCase()}!`, 'success');
+                } else {
+                    const error = await response.text();
+                    showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando em localhost:3000`, 'error');
+            }
+        });
+
+        // Realizar Transferência
+        document.getElementById('formTransferencia').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const contaOrigem = document.getElementById('contaOrigem').value;
+            const contaDestino = document.getElementById('contaDestino').value;
+            const valor = parseFloat(document.getElementById('valorTransferencia').value);
+            const tipo = document.querySelector('input[name="tipoTransferencia"]:checked').value;
+            
+            const payload = {
+                contaOrigem,
+                contaDestino,
+                valor
+            };
+            
+            try {
+                const response = await fetch(`${GATEWAY_URL}/pix?tipo=${tipo}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok || response.status === 201) {
+                    const data = await response.json();
+                    document.getElementById('transferenciaData').textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('resultTransferencia').classList.remove('hidden');
+                    showAlert(`✅ Transferência realizada com sucesso via ${tipo.toUpperCase()}!`, 'success');
+                } else {
+                    const error = await response.text();
+                    showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando em localhost:3000`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
