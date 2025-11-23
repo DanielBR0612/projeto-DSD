@@ -52,54 +52,43 @@
         <!-- Cards Container -->
         <div class="grid md:grid-cols-2 gap-6">
             
-            <!-- Card 1: Consultar Saldo -->
+            <!-- Card 1: Consultar Saldo (via SOAP) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
                 <div class="flex items-center mb-4">
-                    <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                    </svg>
-                    <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Saldo</h2>
+                <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Saldo</h2>
                 </div>
-                
-                <form id="formSaldo" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Número da Conta</label>
-                        <input type="text" id="contaSaldo" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                               placeholder="Ex: 12345" required>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Sistema</label>
-                        <div class="flex gap-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="tipoSaldo" value="rest" checked class="mr-2">
-                                <span class="text-sm">REST (Kotlin)</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="tipoSaldo" value="soap" class="mr-2">
-                                <span class="text-sm">SOAP (Java)</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" 
-                            class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
-                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        Consultar Saldo
-                    </button>
-                </form>
-
-                <!-- Resultado Saldo -->
-                <div id="resultSaldo" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
-                    <pre id="saldoData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
-                </div>
+                <p class="text-gray-600 mb-4">O saldo será sempre consultado por SOAP.</p>
+                <button
+                onclick="consultarSaldo()"
+                class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors">
+                Consultar Saldo (SOAP)
+                </button>
+                <div id="resultado-saldo" class="mt-2 text-green-700 font-bold"></div>
             </div>
 
-            <!-- Card 2: Realizar Transferência -->
+            <!-- Card 2: Consultar Extrato (via REST) -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+                <div class="flex items-center mb-4">
+                <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2m2-4h4a2 2 0 012 2v4H7V6a2 2 0 012-2z"/>
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Extrato</h2>
+                </div>
+                <p class="text-gray-600 mb-4">O extrato será sempre consultado por REST.</p>
+                <button
+                onclick="consultarExtrato()"
+                class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-800 transition-colors">
+                Consultar Extrato (REST)
+                </button>
+                <div id="resultado-extrato" class="mt-2 text-green-700 font-bold"></div>
+            </div>
+
+            <!-- Card 3: Realizar Transferência -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
                 <div class="flex items-center mb-4">
                     <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,28 +192,44 @@
             setTimeout(() => alertBox.classList.add('hidden'), 5000);
         }
 
-        // Consultar Saldo
-        document.getElementById('formSaldo').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const conta = document.getElementById('contaSaldo').value;
-            const tipo = document.querySelector('input[name="tipoSaldo"]:checked').value;
-            
-            try {
-                const response = await fetch(`${GATEWAY_URL}/saldo?conta=${conta}&tipo=${tipo}`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('saldoData').textContent = JSON.stringify(data, null, 2);
-                    document.getElementById('resultSaldo').classList.remove('hidden');
-                    showAlert(`✅ Saldo consultado com sucesso via ${tipo.toUpperCase()}!`, 'success');
-                } else {
-                    const error = await response.text();
-                    showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-                }
-            } catch (error) {
-                showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando em localhost:3000`, 'error');
+        // Consultar Saldo (sempre via SOAP agora)
+        document.getElementById('formSaldoSoap').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const conta = document.getElementById('contaSaldoSoap').value;
+        try {
+            const response = await fetch(`${GATEWAY_URL}/saldo?conta=${conta}&tipo=soap`);
+            if (response.ok) {
+            const data = await response.json();
+            document.getElementById('saldoSoapData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultSaldoSoap').classList.remove('hidden');
+            showAlert(`✅ Saldo consultado com sucesso via SOAP!`, 'success');
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
             }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando`, 'error');
+        }
+        });
+
+        // Consultar Extrato (sempre via REST agora)
+        document.getElementById('formExtratoRest').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const conta = document.getElementById('contaExtratoRest').value;
+        try {
+            const response = await fetch(`${GATEWAY_URL}/extrato?conta=${conta}&tipo=rest`);
+            if (response.ok) {
+            const data = await response.json();
+            document.getElementById('extratoRestData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultExtratoRest').classList.remove('hidden');
+            showAlert(`✅ Extrato consultado com sucesso via REST!`, 'success');
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+            }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando`, 'error');
+        }
         });
 
         // Realizar Transferência
