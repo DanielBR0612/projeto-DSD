@@ -33,7 +33,7 @@ class ContaService (
         val contaOrigem: Conta = contaRepository.findByNumeroConta(request.numeroContaOrigem.trim())
             ?: throw RuntimeException("Conta de origem não encontrada")
 
-        val chavePix: ChavePix = chavePixRepository.findByChave(request.chaveDestino)
+        val chavePix: ChavePix = chavePixRepository.findByChave(request.chaveDestino.trim())
             ?: throw RuntimeException("Chave pix não encontrada")
 
         val contaDestinoDaChave: Conta = chavePix.conta

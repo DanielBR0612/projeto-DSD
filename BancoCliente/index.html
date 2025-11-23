@@ -51,105 +51,171 @@
 
         <!-- Cards Container -->
         <div class="grid md:grid-cols-2 gap-6">
-            
-            <!-- Card 1: Consultar Saldo (via SOAP) -->
+
+            <!-- Card 1: Criar Cliente (SOAP) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
-                <div class="flex items-center mb-4">
+            <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Criar Cliente</h2>
+            </div>
+            <p class="text-gray-600 mb-4 text-sm">⚠️ Faça isso PRIMEIRO, antes de criar a conta</p>
+            <form id="formCriarCliente" class="space-y-4">
+                <input type="text" id="nomeCliente" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Nome do Cliente" required>
+                <input type="text" id="cpfCliente" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="CPF (ex: 12345678901)" required>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors">
+                Criar Cliente (SOAP)
+                </button>
+            </form>
+            <div id="resultCriarCliente" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
+                <pre id="criarClienteData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+            </div>
+            </div>
+
+            <!-- Card 2: Criar Nova Conta (SOAP) -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center mb-4">
+                <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4v16m8-8H4" />
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Criar Conta</h2>
+            </div>
+            <p class="text-gray-600 mb-4 text-sm">Use o ID do cliente criado anteriormente</p>
+            <form id="formCriarConta" class="space-y-4">
+                <input type="number" id="clienteIdCriarConta" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="ID do Cliente (ex: 1)" required>
+                <input type="text" id="numeroContaCriarConta" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Número da Conta (ex: 190612)" required>
+                <input type="number" id="saldoInicialCriarConta" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Saldo Inicial (R$)" min="0" step="0.01" required>
+                <button type="submit" class="w-full py-2 px-4 bg-purple-600 text-white font-semibold rounded hover:bg-purple-800 transition-colors">
+                Criar Conta (SOAP)
+                </button>
+            </form>
+            <div id="resultCriarConta" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
+                <pre id="criarContaData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+            </div>
+            </div>
+            
+            <!-- Card 3: Consultar Saldo (SOAP) -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center mb-4">
+                <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
                 <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Saldo</h2>
-                </div>
-                <p class="text-gray-600 mb-4">O saldo será sempre consultado por SOAP.</p>
-                <button
-                onclick="consultarSaldo()"
-                class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors">
+            </div>
+            <p class="text-gray-600 mb-4">O saldo será consultado por SOAP.</p>
+            <form id="formSaldoSoap" class="space-y-4">
+                <input type="text" id="contaSaldoSoap" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Número da Conta" required>
+                <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors">
                 Consultar Saldo (SOAP)
                 </button>
-                <div id="resultado-saldo" class="mt-2 text-green-700 font-bold"></div>
+            </form>
+            <div id="resultSaldoSoap" class="hidden mt-2 text-green-700 font-bold">
+                <pre id="saldoSoapData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+            </div>
             </div>
 
-            <!-- Card 2: Consultar Extrato (via REST) -->
+            <!-- Card 4: Consultar Extrato (REST) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
-                <div class="flex items-center mb-4">
+            <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2m2-4h4a2 2 0 012 2v4H7V6a2 2 0 012-2z"/>
                 </svg>
                 <h2 class="ml-3 text-2xl font-bold text-gray-800">Consultar Extrato</h2>
-                </div>
-                <p class="text-gray-600 mb-4">O extrato será sempre consultado por REST.</p>
-                <button
-                onclick="consultarExtrato()"
-                class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-800 transition-colors">
+            </div>
+            <p class="text-gray-600 mb-4">O extrato será consultado por REST.</p>
+            <form id="formExtratoRest" class="space-y-4">
+                <input type="text" id="contaExtratoRest" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Número da Conta" required>
+                <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded hover:bg-indigo-800 transition-colors">
                 Consultar Extrato (REST)
                 </button>
-                <div id="resultado-extrato" class="mt-2 text-green-700 font-bold"></div>
+            </form>
+            <div id="resultExtratoRest" class="hidden mt-2 text-green-700 font-bold">
+                <pre id="extratoRestData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+            </div>
             </div>
 
-            <!-- Card 3: Realizar Transferência -->
+            <!-- Card 5: Realizar Transferência TED -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
                 <div class="flex items-center mb-4">
-                    <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                    </svg>
-                    <h2 class="ml-3 text-2xl font-bold text-gray-800">Transferência</h2>
+                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Transferência TED</h2>
                 </div>
-                
-                <form id="formTransferencia" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Origem</label>
-                        <input type="text" id="contaOrigem" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                               placeholder="Ex: 12345" required>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Destino</label>
-                        <input type="text" id="contaDestino" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                               placeholder="Ex: 67890" required>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor (R$)</label>
-                        <input type="number" id="valorTransferencia" step="0.01" 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                               placeholder="Ex: 100.00" required>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Transferência</label>
-                        <div class="flex gap-4">
-                            <label class="flex items-center">
-                                <input type="radio" name="tipoTransferencia" value="rest" checked class="mr-2">
-                                <span class="text-sm">Pix (REST)</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" name="tipoTransferencia" value="soap" class="mr-2">
-                                <span class="text-sm">TED (SOAP)</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" 
-                            class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
-                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Realizar Transferência
-                    </button>
+                <p class="text-gray-600 mb-4 text-sm">Sistema legado (SOAP)</p>
+                <form id="formTransferenciaTED" class="space-y-4">
+                <input type="text" id="contaOrigemTED" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Conta Origem" required>
+                <input type="text" id="contaDestinoTED" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Conta Destino" required>
+                <input type="number" id="valorTED" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Valor (R$)" min="0" step="0.01" required>
+                <button type="submit" class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded hover:bg-green-800 transition-colors">
+                    Transferir via TED (SOAP)
+                </button>
                 </form>
-
-                <!-- Resultado Transferência -->
-                <div id="resultTransferencia" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h3 class="font-bold text-blue-800 mb-2">Resultado:</h3>
-                    <pre id="transferenciaData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+                <div id="resultTransferenciaTED" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
+                <pre id="resultadoTED" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
                 </div>
             </div>
 
-        </div>
+            <!-- Card 6: Criar Chave PIX (REST) -->
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+            <div class="flex items-center mb-4">
+                <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.997 5.773A6 6 0 0112 17m0 0a2 2 0 10-4 0m4 0a2 2 0 11-4 0m3-6h2.5a2.5 2.5 0 100-5H15"></path>
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Criar Chave PIX</h2>
+            </div>
+            <p class="text-gray-600 mb-4 text-sm">⚠️ Faça antes de transferir PIX (REST)</p>
+            <form id="formCriarChavePix" class="space-y-4">
+                <input type="number" id="clienteIdChavePix" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="ID do Cliente" required>
+                <input type="text" id="contaPix" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Número da Conta" required>
+                <input type="text" id="chavePixValor" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Chave PIX (CPF/Email/Telefone)" required>
+                <select id="tipoChavePix" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+                <option value="">Selecione o tipo de chave</option>
+                <option value="CPF">CPF</option>
+                <option value="EMAIL">EMAIL</option>
+                <option value="TELEFONE">TELEFONE</option>
+                <option value="ALEATORIA">ALEATÓRIA</option>
+                </select>
+                <button type="submit" class="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded hover:bg-orange-800 transition-colors">
+                Criar Chave PIX (REST)
+                </button>
+            </form>
+            <div id="resultCriarChavePix" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 class="font-bold text-green-800 mb-2">Resultado:</h3>
+                <pre id="criarChavePixData" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+            </div>
+            </div>
+
+            <!-- Card 7: Realizar Transferência PIX -->
+             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+                <div class="flex items-center mb-4">
+                <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <h2 class="ml-3 text-2xl font-bold text-gray-800">Transferência PIX</h2>
+                </div>
+                <p class="text-gray-600 mb-4 text-sm">Sistema moderno (REST)</p>
+                <form id="formTransferenciaPIX" class="space-y-4">
+                <input type="text" id="contaOrigemPIX" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Conta Origem" required>
+                <input type="text" id="chaveDestinoPIX" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Chave Destino (CPF, Email, Celular)" required>
+                <input type="number" id="valorPIX" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Valor (R$)" min="0" step="0.01" required>
+                <button type="submit" class="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded hover:bg-orange-800 transition-colors">
+                    Transferir via PIX (REST)
+                </button>
+                </form>
+                <div id="resultTransferenciaPIX" class="hidden mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <h3 class="font-bold text-orange-800 mb-2">Resultado:</h3>
+                <pre id="resultadoPIX" class="text-sm text-gray-700 whitespace-pre-wrap"></pre>
+                </div>
+            </div>
 
         <!-- Info Section -->
         <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
@@ -192,12 +258,82 @@
             setTimeout(() => alertBox.classList.add('hidden'), 5000);
         }
 
-        // Consultar Saldo (sempre via SOAP agora)
+        // Criar Cliente (via SOAP)
+        document.getElementById('formCriarCliente').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const nome = document.getElementById('nomeCliente').value;
+        const cpf = document.getElementById('cpfCliente').value;
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/soap/criarCliente`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ nome, cpf })
+            });
+
+            if (response.ok || response.status === 201) {
+            const data = await response.json();
+            document.getElementById('criarClienteData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultCriarCliente').classList.remove('hidden');
+            showAlert(`✅ Cliente criado com sucesso! ID: ${data.data.id}`, 'success');
+            document.getElementById('formCriarCliente').reset();
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+            }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+        }
+        });
+
+        // Criar Nova Conta (via SOAP)
+        document.getElementById('formCriarConta').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clienteId = parseInt(document.getElementById('clienteIdCriarConta').value);
+        const numeroConta = document.getElementById('numeroContaCriarConta').value;
+        const saldoInicial = parseFloat(document.getElementById('saldoInicialCriarConta').value);
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/soap/criarConta`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ clienteId, numeroConta, saldoInicial })
+            });
+
+            if (response.ok || response.status === 201) {
+            const data = await response.json();
+            document.getElementById('criarContaData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultCriarConta').classList.remove('hidden');
+            showAlert(`✅ Conta criada com sucesso!`, 'success');
+            document.getElementById('formCriarConta').reset();
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+            }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+        }
+        });
+
+        // Consultar Saldo (SOAP)
         document.getElementById('formSaldoSoap').addEventListener('submit', async (e) => {
         e.preventDefault();
         const conta = document.getElementById('contaSaldoSoap').value;
+
         try {
-            const response = await fetch(`${GATEWAY_URL}/saldo?conta=${conta}&tipo=soap`);
+            const response = await fetch(`${GATEWAY_URL}/soap/saldo?conta=${conta}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            });
+
             if (response.ok) {
             const data = await response.json();
             document.getElementById('saldoSoapData').textContent = JSON.stringify(data, null, 2);
@@ -212,12 +348,19 @@
         }
         });
 
-        // Consultar Extrato (sempre via REST agora)
+        // Consultar Extrato (REST)
         document.getElementById('formExtratoRest').addEventListener('submit', async (e) => {
         e.preventDefault();
         const conta = document.getElementById('contaExtratoRest').value;
+
         try {
-            const response = await fetch(`${GATEWAY_URL}/extrato?conta=${conta}&tipo=rest`);
+            const response = await fetch(`${GATEWAY_URL}/rest/extrato?conta=${conta}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+            });
+
             if (response.ok) {
             const data = await response.json();
             document.getElementById('extratoRestData').textContent = JSON.stringify(data, null, 2);
@@ -232,43 +375,136 @@
         }
         });
 
-        // Realizar Transferência
-        document.getElementById('formTransferencia').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const contaOrigem = document.getElementById('contaOrigem').value;
-            const contaDestino = document.getElementById('contaDestino').value;
-            const valor = parseFloat(document.getElementById('valorTransferencia').value);
-            const tipo = document.querySelector('input[name="tipoTransferencia"]:checked').value;
-            
-            const payload = {
-                contaOrigem,
-                contaDestino,
-                valor
-            };
-            
-            try {
-                const response = await fetch(`${GATEWAY_URL}/pix?tipo=${tipo}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                if (response.ok || response.status === 201) {
-                    const data = await response.json();
-                    document.getElementById('transferenciaData').textContent = JSON.stringify(data, null, 2);
-                    document.getElementById('resultTransferencia').classList.remove('hidden');
-                    showAlert(`✅ Transferência realizada com sucesso via ${tipo.toUpperCase()}!`, 'success');
-                } else {
-                    const error = await response.text();
-                    showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-                }
-            } catch (error) {
-                showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando em localhost:3000`, 'error');
+        // Criar Chave PIX (via REST)
+        document.getElementById('formCriarChavePix').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clienteId = parseInt(document.getElementById('clienteIdChavePix').value);
+        const valor = document.getElementById('chavePixValor').value;  // AGORA É "valor"
+        const tipo = document.getElementById('tipoChavePix').value;    // AGORA É "tipo"
+        const numeroConta = document.getElementById('contaPix').value; // NOVO CAMPO
+
+        const url = `${GATEWAY_URL}/rest/clientes/${clienteId}/chaves-pix`;
+        const payload = { tipo, valor, numeroConta };  // CAMPOS CORRETOS!
+
+        console.log('URL:', url);
+        console.log('Payload:', payload);
+
+        try {
+            const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+            });
+
+            if (response.ok || response.status === 201) {
+            const data = await response.json();
+            document.getElementById('criarChavePixData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultCriarChavePix').classList.remove('hidden');
+            showAlert(`✅ Chave PIX criada com sucesso!`, 'success');
+            document.getElementById('formCriarChavePix').reset();
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
             }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+        }
         });
+
+        // Realizar Transferência
+        //TED
+        document.getElementById('formTransferenciaTED').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const contaOrigem = document.getElementById('contaOrigemTED').value;
+        const contaDestino = document.getElementById('contaDestinoTED').value;
+        const valor = parseFloat(document.getElementById('valorTED').value);
+
+        try {
+            const response = await fetch(`${GATEWAY_URL}/soap/TED`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ contaOrigem, contaDestino, valor })
+            });
+
+            if (response.ok || response.status === 201) {
+            const data = await response.json();
+            document.getElementById('resultadoTED').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultTransferenciaTED').classList.remove('hidden');
+            showAlert(`✅ Transferência TED realizada com sucesso!`, 'success');
+            document.getElementById('formTransferenciaTED').reset();
+            } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+            }
+        } catch (error) {
+            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+        }
+        });
+        
+        //Pix
+        document.getElementById('formTransferenciaPIX').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const numeroContaOrigem = document.getElementById('contaOrigemPIX').value.trim();
+        const chaveDestino = document.getElementById('chaveDestinoPIX').value.trim();
+        const valorStr = document.getElementById('valorPIX').value.trim();
+        const valor = parseFloat(valorStr);
+
+        console.log('=== DEBUG PIX TRANSFER ===');
+        console.log('numeroContaOrigem:', numeroContaOrigem, 'type:', typeof numeroContaOrigem);
+        console.log('chaveDestino:', chaveDestino, 'type:', typeof chaveDestino);
+        console.log('valor:', valor, 'type:', typeof valor);
+        console.log('=== END DEBUG ===');
+
+        if (!numeroContaOrigem || !chaveDestino || isNaN(valor)) {
+            showAlert('❌ Preencha todos os campos corretamente', 'error');
+            return;
+        }
+
+        const url = `${GATEWAY_URL}/rest/pix`;
+        const payload = { 
+            numeroContaOrigem,
+            chaveDestino, 
+            valor 
+        };
+
+        console.log('Enviando para:', url);
+        console.log('Payload:', JSON.stringify(payload));
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('Status HTTP:', response.status);
+            const data = await response.json();
+            console.log('Resposta do servidor:', data);
+
+            if (response.ok || response.status === 201) {
+                document.getElementById('resultadoPIX').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('resultTransferenciaPIX').classList.remove('hidden');
+                showAlert(`✅ Transferência PIX realizada com sucesso!`, 'success');
+                document.getElementById('formTransferenciaPIX').reset();
+            } else {
+                const errorMsg = data.message || data.error || JSON.stringify(data);
+                console.error('Erro na resposta:', errorMsg);
+                showAlert(`❌ Erro ${response.status}: ${errorMsg}`, 'error');
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+        }
+    });
     </script>
 </body>
 </html>
