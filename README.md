@@ -17,9 +17,13 @@ Este projeto simula um **sistema bancário distribuído** usando múltiplos back
 ## Estrutura dos diretórios
 
 projeto-DSD/
+
 ├── BancoApiGateway/ # API Gateway (NestJS)
+
 ├── BancoCoreSOAP/ # Backend SOAP (Spring Boot - Java)
+
 ├── BancoRestApi/ # Backend REST (Spring Boot - Kotlin)
+
 ├── BancoCliente/ # Cliente web + Cliente Python
 
 ---
