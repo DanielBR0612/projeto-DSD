@@ -30,11 +30,11 @@ projeto-DSD/
 
 ## 1. Pré-requisitos
 
-- **Node.js** (v18+, para os serviços Nest.JS)
-- **Java 21+** (para os serviços Spring Boot)
+- **Node.js** (v18, para os serviços Nest.JS)
+- **Java 21** (para os serviços Spring Boot)
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
-- **Python 3.9+** (para o cliente terminal)
-- **PostgreSQL** (para persistência dos sistemas REST e SOAP)
+- **Python 3.9** (para o cliente terminal)
+- **PostgreSQL 14** (para persistência dos sistemas REST e SOAP)
 
 ---
 
