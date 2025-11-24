@@ -30,7 +30,7 @@ projeto-DSD/
 
 ## 1. Pré-requisitos
 
-- **Node.js** (v18+), preferencialmente via [nodejs.org](https://nodejs.org)
+- **Node.js** (v18+, para os serviços Nest.JS)
 - **Java 21+** (para os serviços Spring Boot)
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
 - **Python 3.9+** (para o cliente terminal)
@@ -49,7 +49,7 @@ cd projeto-DSD
 
 ## 3. Configuração do Banco de Dados
 
-Crie os bancos citados nos arquivos de configuração dos serviços REST e SOAP (geralmente `application.properties` ou via PostgreSQL padrão, nas portas 5432).
+Crie os bancos citados nos arquivos de configuração dos serviços REST e SOAP (localizado nas `application.properties` ou via PostgreSQL padrão, nas portas 5432).
 
 Configure as credenciais conforme os arquivos:
 
@@ -58,10 +58,19 @@ Configure as credenciais conforme os arquivos:
 
 > Exemplos de configuração (ajuste caso mude usuário/senha/porta):
 ```
-spring.datasource.url=jdbc:postgresql://localhost:5432/banco_rest
+spring.datasource.url=jdbc:postgresql://localhost:5432/banco_dsd
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 ```
+
+> Criando o banco de dados pelo terminal:
+```
+psql -U postgres
+CREATE DATABASE banco_dsd
+\q
+```
+Dica: recomendamos inicializar primeiro o sistema legado SOAP, em seguida o sistema REST e só então criar banco de dados.
+
 ---
 
 ## 4. Inicializando os serviços
@@ -71,6 +80,8 @@ spring.datasource.password=postgres
 cd BancoCoreSOAP
 ./mvnw spring-boot:run
 ```
+ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoCoreSoapApplication.java** e selecionando "Run as java application" (Eclipse). 
+
 - Por padrão roda na porta **8080**
 
 ### 4.2 Backend REST (Kotlin Spring Boot)
@@ -78,6 +89,8 @@ cd BancoCoreSOAP
 cd BancoRestApi
 ./mvnw spring-boot:run
 ```
+ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoRestApiApplication.kt** e selecionando "Run" (IntelliJ IDEA). 
+
 - Por padrão roda na porta **8081**
 
 ### 4.3 API Gateway (NestJS/Node.js)
@@ -126,12 +139,15 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 
 ## 7. Fluxos para Teste
 
-1. **Inicie todos os serviços** (Gateway, REST, SOAP).
+1. **Inicie todos os serviços** (Gateway, REST, SOAP) em terminais diferentes. 
+   Dica: Para uma melhor experiência recomendamos o uso dos IDE Eclipse para o SOAP (Java), IntelliJ IDEA para o REST (Kotlin) e o VSCode para o Gateway (Nest.JS).
+
 2. **Use o Cliente Web**:
-   - Crie um novo cliente (SOAP).
-   - Crie uma conta para o cliente (SOAP).
-   - Consulte saldo/extrato, realize transferências (TED/PIX).
+   - Primeiro crie um novo cliente (SOAP).
+   - Segundo crie uma conta para o cliente (SOAP).
+   - Em seguida Consulte saldo/extrato.
    - Crie e vincule chave PIX para transferências REST.
+   - Realize transferências (TED/PIX).
 
 3. **Teste pelo Cliente Python**:
    - Utilize o menu para consultar saldo e realizar transferências.
@@ -156,7 +172,7 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 
 - Se algum serviço não inicializar, revise dependências e variáveis de ambiente.
 - Os logs de erro geralmente detalham problemas de conexão/porta.
-- O projeto é inteiramente didático; refatore conforme necessário para suas atividades.
+- O projeto é inteiramente didático; refatore conforme necessário para seus testes.
 
 ---
 
