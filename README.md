@@ -140,7 +140,8 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 ## 7. Fluxos para Teste
 
 1. **Inicie todos os serviços** (Gateway, REST, SOAP) em terminais diferentes. 
-   Dica: Para uma melhor experiência recomendamos o uso dos IDE Eclipse para o SOAP (Java), IntelliJ IDEA para o REST (Kotlin) e o VSCode para o Gateway (Nest.JS).
+
+    Dica: Para uma melhor experiência recomendamos o uso dos IDE Eclipse para o SOAP (Java), IntelliJ IDEA para o REST (Kotlin) e o VSCode para o Gateway (Nest.JS).
 
 2. **Use o Cliente Web**:
    - Primeiro crie um novo cliente (SOAP).
