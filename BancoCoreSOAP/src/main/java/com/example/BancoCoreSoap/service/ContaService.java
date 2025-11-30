@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.BancoCoreSoap.repository.ClienteRepository;
@@ -103,4 +104,25 @@ public class ContaService {
 		
 		return response;
 	}
+	
+	@Transactional
+    public String autenticarUsuario(String numeroConta, String senhaRecebida) {
+        
+        Optional<Conta> contaOpt = contaRepository.findByNumeroConta(numeroConta);
+
+        if (contaOpt.isPresent()) {
+            Conta conta = contaOpt.get(); 
+
+            if (conta.getCliente() != null && conta.getCliente().getUsuario() != null) {
+                String senhaBanco = conta.getCliente().getUsuario().getPasswordHash();
+
+                if (senhaBanco.equals(senhaRecebida)) {
+                    return conta.getCliente().getNome();
+                }
+            }
+        }
+        
+        return null;
+    }
 }
+      

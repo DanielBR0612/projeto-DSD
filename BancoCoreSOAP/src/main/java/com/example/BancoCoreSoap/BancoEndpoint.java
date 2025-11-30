@@ -1,7 +1,10 @@
 package com.example.BancoCoreSoap;
 
 import com.example.demo.banco.gen.AlterarSenhaAcessoRequest;
+
 import com.example.demo.banco.gen.AlterarSenhaAcessoResponse;
+import com.example.demo.banco.gen.AutenticarRequest;
+import com.example.demo.banco.gen.AutenticarResponse;
 import com.example.demo.banco.gen.ConsultarSaldoRequest;
 import com.example.demo.banco.gen.ConsultarSaldoResponse;
 import com.example.demo.banco.gen.CriarClienteRequest;
@@ -48,6 +51,25 @@ public class BancoEndpoint {
     @Autowired
     public BancoEndpoint(ContaRepository contaRepository, ClienteRepository clienteRepository) {
         this.contaRepository = contaRepository;
+    }
+    
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "autenticarRequest")
+    @ResponsePayload
+    public AutenticarResponse autenticar(@RequestPayload AutenticarRequest request) {
+        
+        AutenticarResponse response = new AutenticarResponse();
+
+        String nomeCliente = contaService.autenticarUsuario(request.getNumeroConta(), request.getSenha());
+
+        if (nomeCliente != null) {
+            response.setValido(true);
+            response.setNomeCliente(nomeCliente);
+        } else {
+            response.setValido(false);
+            response.setNomeCliente("");
+        }
+
+        return response;
     }
     
 

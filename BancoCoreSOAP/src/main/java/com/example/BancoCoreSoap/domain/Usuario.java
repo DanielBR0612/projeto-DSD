@@ -1,6 +1,7 @@
 package com.example.BancoCoreSoap.domain;
 
 import jakarta.persistence.*;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
@@ -64,6 +65,10 @@ public class Usuario {
 	
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
+	}
+	
+	public void setRole(Role role) {
+		this.role = role;
 	}
 	
 
