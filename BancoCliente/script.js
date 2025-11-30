@@ -30,7 +30,12 @@ const GATEWAY_URL = 'http://localhost:3000/banco';
 
             clienteIdWs = clienteId;
 
-            const url = `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}`;
+            // permite passar token via input `id="wsToken"` ou via variável global `window.CLIENT_WS_TOKEN`
+            const tokenInput = document.getElementById('wsToken');
+            const token = (tokenInput && tokenInput.value) ? tokenInput.value.trim() : (window.CLIENT_WS_TOKEN ?? null);
+            const url = token
+                ? `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}&token=${encodeURIComponent(token)}`
+                : `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}`;
             console.log('Conectando WS em', url);
 
             socket = new WebSocket(url);

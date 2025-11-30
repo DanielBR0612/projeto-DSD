@@ -177,7 +177,42 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 
 ---
 
-## 10. Créditos
+## 10. Implementação de websocket
+
+Notificações por WebSocket autenticadas por JWT e integração com o API Gateway.
+
+   - Validação de JWT no handshake: o cliente envia `?token=<JWT>&clienteId=<id>` no URL de conexão; o `ws-service` valida o token com a variável de ambiente `WS_JWT_SECRET` e usa o claim `sub` (ou `clienteId`) como identificador do cliente.
+   - Arquivo principal: `ws-service/src/index.ts` (le `process.env.WS_JWT_SECRET`).
+   - Ferramenta de desenvolvimento para gerar tokens: `ws-service/tools/generateToken.js` (gera token com `sub = clienteId`).
+   - Você pode colar o token em um input `id="wsToken"` na página ou definir `window.CLIENT_WS_TOKEN = '<token>'` no console antes de conectar.
+   - Mantunção de apenas uma conexão WebSocket por cliente (fecha a anterior ao abrir nova).
+   - `NotificationsService` foi adicionado nos controladores de transferência (TED e PIX). O gateway faz POST para o `ws-service` `/notify` para solicitar envio de notificações quando houver transferência.
+
+Como usar:
+
+1. Defina o segredo JWT para o `ws-service`:
+
+```bash
+cd /workspaces/projeto-DSD/ws-service
+export WS_JWT_SECRET=$(openssl rand -hex 32)
+npm run dev
+```
+
+2. Gere um token de teste (no mesmo terminal ou com a mesma variável de ambiente):
+
+```bash
+node tools/generateToken.js 12345
+# saída: <JWT>
+```
+
+3. No cliente web (`BancoCliente/index.html`): cole o token no campo `#wsToken` (ou defina `window.CLIENT_WS_TOKEN`) e preencha o campo "Conta Destino TED" (ou chave PIX conforme sua configuração). O cliente fará handshake com `?token=<JWT>&clienteId=<id>`.
+
+4. Faça uma transferência TED/PIX pelo cliente ou via API Gateway; o gateway chama `/notify` no `ws-service` e, se o destinatário estiver conectado e autenticado, receberá o evento `nova-transacao` via WebSocket.
+
+
+---
+
+## 11. Créditos
 
 **[Daniel Braga](https://github.com/DanielBR0612) & [Josephy Araújo](https://github.com/seu-usuario-github) — IFRN**
 
