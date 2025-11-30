@@ -9,7 +9,70 @@ const GATEWAY_URL = 'http://localhost:3000/banco';
             
             setTimeout(() => alertBox.classList.add('hidden'), 5000);
         }
+        // Cliente websocket para notificações
+        const WS_URL = 'ws://localhost:4000'; // MESMA porta que o ws-service
+   
+        let clienteIdWs = null;
+        let socket = null;
 
+        // Função para abrir conexão WebSocket quando o usuário informar a conta
+        function conectarWebSocket(clienteId) {
+            if (!clienteId) return;
+            if (clienteIdWs === clienteId && socket && socket.readyState === WebSocket.OPEN) {
+                // já conectado para esse cliente
+                return;
+            }
+            // se já existir uma conexão para outro cliente, fechar antes
+            if (socket) {
+                try { socket.close(); } catch (e) { /* ignore */ }
+                socket = null;
+            }
+
+            clienteIdWs = clienteId;
+
+            // permite passar token via input `id="wsToken"` ou via variável global `window.CLIENT_WS_TOKEN`
+            const tokenInput = document.getElementById('wsToken');
+            const token = (tokenInput && tokenInput.value) ? tokenInput.value.trim() : (window.CLIENT_WS_TOKEN ?? null);
+            const url = token
+                ? `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}&token=${encodeURIComponent(token)}`
+                : `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}`;
+            console.log('Conectando WS em', url);
+
+            socket = new WebSocket(url);
+
+            socket.onopen = () => {
+                console.log('WebSocket conectado para cliente', clienteIdWs);
+                showAlert(`WebSocket conectado para a conta/cliente: ${clienteIdWs}`, 'success');
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                const mensagem = JSON.parse(event.data);
+                if (mensagem.event === 'nova-transacao') {
+                    const { valor, tipo, timestamp } = mensagem.data;
+                    showAlert(
+                    `💰 Você recebeu uma ${tipo} de R$ ${valor} em ${new Date(timestamp).toLocaleString()}`,
+                    'success'
+                    );
+                    console.log('Notificação recebida via WS:', mensagem);
+                }
+                } catch (e) {
+                console.error('Erro ao processar mensagem WS', e);
+                }
+            };
+
+            socket.onclose = () => {
+                console.log('Conexão WebSocket fechada para', clienteIdWs);
+                socket = null;         // limpar referência
+                clienteIdWs = null;    // permitir nova conexão futura
+            };
+
+            socket.onerror = (err) => {
+                console.error('Erro no WebSocket', err);
+                showAlert('❌ Erro na conexão WebSocket. Verifique se o ws-service está rodando.', 'error');
+            };
+        }
+        
         // Criar Cliente (via SOAP)
         document.getElementById('formCriarCliente').addEventListener('submit', async (e) => {
         e.preventDefault();
