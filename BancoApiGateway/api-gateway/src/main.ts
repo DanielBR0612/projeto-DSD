@@ -2,15 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; 
 import { HateoasInterceptor } from './common/hateoas.interceptor';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Permitir CORS para todas as origens (inclui requests origin 'null' vindo de file://)
+  // Permitir CORS para todas as origens 
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
+
+  app.useWebSocketAdapter(new WsAdapter(app));
   
   const config = new DocumentBuilder()
     .setTitle('API Gateway Bancário')
