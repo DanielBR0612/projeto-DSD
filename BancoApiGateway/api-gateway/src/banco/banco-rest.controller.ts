@@ -1,13 +1,15 @@
 import { Controller, Get, Post, Body, Param, Query, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { BancoRestApiService } from '../banco-rest-api/banco-rest-api.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @ApiTags('banco-rest') 
 @Controller('banco/rest')
 export class BancoRestController {
-  constructor(
-    private readonly restService: BancoRestApiService,
-  ) {}
+    constructor(
+        private readonly restService: BancoRestApiService,
+        private readonly notificationsService: NotificationsService,
+    ) {}
 
     @Post('clientes/:id/chaves-pix') 
     @ApiOperation({ summary: 'Cria uma nova chave Pix para um cliente' }) 
@@ -39,20 +41,25 @@ export class BancoRestController {
     async realizarPix(@Body() body: any) {
         const dados = await this.restService.realizarPix(body);
 
+        // Notificar destinatário via NotificationsService (não bloqueante)
+        this.notificationsService
+            .notificarTransacao(String(body.chaveDestino ?? body.contaDestino ?? ''), Number(body.valor), 'PIX')
+            .catch((err) => console.error('Falha ao notificar destinatário (PIX):', err));
+
         return {
             data: dados,
             links: {
                 ver_extrato: {
                     href: `http://localhost:3000/banco/rest/extrato?conta=${body.contaOrigem}`,
                     method: 'GET',
-                    title: 'Consultar extrato atualizado'
+                    title: 'Consultar extrato atualizado',
                 },
                 nova_transferencia: {
                     href: `http://localhost:3000/banco/rest/pix`,
                     method: 'POST',
-                    title: 'Realizar outro PIX'
-                }
-            }
+                    title: 'Realizar outro PIX',
+                },
+            },
         };
     }
 
