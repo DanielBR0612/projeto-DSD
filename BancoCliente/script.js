@@ -1,322 +1,367 @@
-const GATEWAY_URL = 'http://localhost:3000/banco';
+// --- CONFIGURAÇÕES ---
+// Aponta para a raiz do Gateway. Os endpoints adicionam /banco/soap ou /banco/rest
+const GATEWAY_URL = 'http://localhost:3000'; 
+const WS_URL = 'ws://localhost:8083/ws'; // Ajuste a porta se seu WS estiver na 8083
 
-        // Função para exibir alertas
-        function showAlert(message, type = 'success') {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.className = `mb-6 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'}`;
-            alertBox.textContent = message;
-            alertBox.classList.remove('hidden');
-            
-            setTimeout(() => alertBox.classList.add('hidden'), 5000);
-        }
-        // Cliente websocket para notificações
-        const WS_URL = 'ws://localhost:4000'; // MESMA porta que o ws-service
-   
-        let clienteIdWs = null;
-        let socket = null;
+// Recupera token e conta salvos no login
+let token = localStorage.getItem('banco_token');
+let contaLogada = localStorage.getItem('banco_conta');
 
-        // Função para abrir conexão WebSocket quando o usuário informar a conta
-        function conectarWebSocket(clienteId) {
-            if (!clienteId) return;
-            if (clienteIdWs === clienteId && socket && socket.readyState === WebSocket.OPEN) {
-                // já conectado para esse cliente
-                return;
-            }
-            // se já existir uma conexão para outro cliente, fechar antes
-            if (socket) {
-                try { socket.close(); } catch (e) { /* ignore */ }
-                socket = null;
-            }
+// --- HELPER: Cabeçalhos com Autenticação ---
+function getHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
 
-            clienteIdWs = clienteId;
+// --- HELPER: Exibir Alertas ---
+function showAlert(message, type = 'success') {
+    const alertBox = document.getElementById('alertBox');
+    alertBox.className = `mb-6 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'}`;
+    alertBox.textContent = message;
+    alertBox.classList.remove('hidden');
+    setTimeout(() => alertBox.classList.add('hidden'), 5000);
+}
 
-            // permite passar token via input `id="wsToken"` ou via variável global `window.CLIENT_WS_TOKEN`
-            const tokenInput = document.getElementById('wsToken');
-            const token = (tokenInput && tokenInput.value) ? tokenInput.value.trim() : (window.CLIENT_WS_TOKEN ?? null);
-            const url = token
-                ? `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}&token=${encodeURIComponent(token)}`
-                : `${WS_URL}?clienteId=${encodeURIComponent(clienteIdWs)}`;
-            console.log('Conectando WS em', url);
+// --- CONTROLE DE LOGIN (Para funcionar com o HTML único) ---
+// Se não tiver token, mostra o modal de login. Se tiver, inicia o WS.
+function verificarLogin() {
+    const overlay = document.getElementById('loginOverlay');
+    if (!overlay) return; // Caso você tenha removido o modal do HTML
 
-            socket = new WebSocket(url);
+    if (token) {
+        overlay.classList.add('hidden');
+        conectarWebSocket(contaLogada);
+    } else {
+        overlay.classList.remove('hidden');
+    }
+}
 
-            socket.onopen = () => {
-                console.log('WebSocket conectado para cliente', clienteIdWs);
-                showAlert(`WebSocket conectado para a conta/cliente: ${clienteIdWs}`, 'success');
-            };
+// Handler do Formulário de Login
+// Handler do Formulário de Login
+const formLogin = document.getElementById('formLogin');
 
-            socket.onmessage = (event) => {
-                try {
-                const mensagem = JSON.parse(event.data);
-                if (mensagem.event === 'nova-transacao') {
-                    const { valor, tipo, timestamp } = mensagem.data;
-                    showAlert(
-                    `💰 Você recebeu uma ${tipo} de R$ ${valor} em ${new Date(timestamp).toLocaleString()}`,
-                    'success'
-                    );
-                    console.log('Notificação recebida via WS:', mensagem);
-                }
-                } catch (e) {
-                console.error('Erro ao processar mensagem WS', e);
-                }
-            };
+if (formLogin) {
+    console.log("✅ Formulário de login encontrado no HTML");
 
-            socket.onclose = () => {
-                console.log('Conexão WebSocket fechada para', clienteIdWs);
-                socket = null;         // limpar referência
-                clienteIdWs = null;    // permitir nova conexão futura
-            };
+    formLogin.addEventListener('submit', async (e) => {
+        // 1. IMPEDE O RECARREGAMENTO DA PÁGINA (Crucial!)
+        e.preventDefault(); 
+        console.log("👉 1. Botão 'Entrar' clicado");
 
-            socket.onerror = (err) => {
-                console.error('Erro no WebSocket', err);
-                showAlert('❌ Erro na conexão WebSocket. Verifique se o ws-service está rodando.', 'error');
-            };
-        }
+        const conta = document.getElementById('loginConta').value;
+        const senha = document.getElementById('loginSenha').value;
+        const btn = formLogin.querySelector('button');
         
-        // Criar Cliente (via SOAP)
-        document.getElementById('formCriarCliente').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const nome = document.getElementById('nomeCliente').value;
-        const cpf = document.getElementById('cpfCliente').value;
+        console.log(`👉 2. Tentando logar com Conta: ${conta} | Senha: ${senha}`);
+
+        btn.textContent = "Autenticando...";
+        btn.disabled = true;
 
         try {
-            const response = await fetch(`${GATEWAY_URL}/soap/criarCliente`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ nome, cpf })
+            console.log(`👉 3. Enviando POST para: ${GATEWAY_URL}/auth/login`);
+            
+            const response = await fetch(`${GATEWAY_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conta, senha })
             });
 
-            if (response.ok || response.status === 201) {
+            const jsonResponse = await response.json(); // Pega a resposta completa
+            
+            // CORREÇÃO AQUI: 
+            // O interceptor HATEOAS coloca o resultado dentro de '.data'.
+            // Então verificamos se existe jsonResponse.data ou usamos o próprio jsonResponse.
+            const payload = jsonResponse.data || jsonResponse;
+
+            console.log("👉 5. Payload processado:", payload);
+
+            if (response.ok && payload.access_token) {
+                console.log("👉 6. Token encontrado! Salvando...");
+                
+                // SALVA USANDO O PAYLOAD CORRETO
+                localStorage.setItem('banco_token', payload.access_token);
+                localStorage.setItem('banco_conta', conta);
+                
+                // Atualiza memória
+                token = payload.access_token;
+                contaLogada = conta;
+
+                verificarLogin();
+                showAlert(`Bem-vindo, conta ${conta}!`, 'success');
+                
+                formLogin.reset();
+            } else {
+                console.error("❌ Erro no login:", jsonResponse);
+                // Exibe a mensagem de erro corretamente, mesmo envelopada
+                const msgErro = payload.message || jsonResponse.message || "Credenciais inválidas";
+                alert("Login falhou: " + msgErro);
+            }
+        } catch (error) {
+            console.error("❌ Erro Técnico:", error);
+            alert("Erro de conexão: " + error.message);
+        } finally {
+            btn.textContent = "ENTRAR NO SISTEMA";
+            btn.disabled = false;
+        }
+    });
+} else {
+    console.error("❌ ERRO CRÍTICO: Não achei o elemento 'formLogin' no HTML. Verifique o ID.");
+}
+
+// --- WEBSOCKET ---
+let socket = null;
+
+function conectarWebSocket(clienteId) {
+    if (!clienteId || !token) return;
+
+    // Fecha conexão anterior se existir
+    if (socket) {
+        try { socket.close(); } catch (e) {}
+        socket = null;
+    }
+
+    // Conecta enviando o Token na URL (padrão seguro)
+    const url = `${WS_URL}?token=${token}`;
+    console.log('Conectando WS em', url);
+
+    socket = new WebSocket(url);
+
+    socket.onopen = () => {
+        console.log('WebSocket conectado para cliente', clienteId);
+        showAlert(`🟢 Sistema de Notificações Online para conta ${clienteId}`, 'success');
+    };
+
+    socket.onmessage = (event) => {
+        try {
+            const mensagem = JSON.parse(event.data);
+            
+            // Filtra evento de nova transação
+            if (mensagem.event === 'nova-transacao') {
+                const { valor, tipo, timestamp } = mensagem.data;
+                const valorFormatado = parseFloat(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                
+                // Toca alerta visual e sonoro (opcional)
+                showAlert(`💰 RECEBIDO! ${tipo} de ${valorFormatado}`, 'success');
+                alert(`🔔 NOTIFICAÇÃO:\n\nVocê recebeu um ${tipo} de ${valorFormatado}!`);
+            }
+        } catch (e) {
+            console.error('Erro ao processar mensagem WS', e);
+        }
+    };
+
+    socket.onclose = (event) => {
+        console.log('Conexão WebSocket fechada');
+        if (event.code === 1008) {
+            alert("Sessão expirada. Faça login novamente.");
+            localStorage.clear();
+            location.reload();
+        }
+    };
+}
+
+// --- FORMULÁRIOS DO SISTEMA ---
+
+// 1. Criar Cliente (SOAP)
+document.getElementById('formCriarCliente').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('nomeCliente').value;
+    const cpf = document.getElementById('cpfCliente').value;
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/soap/criarCliente`, {
+            method: 'POST',
+            headers: getHeaders(), // <--- INJETA O TOKEN AQUI
+            body: JSON.stringify({ nome, cpf })
+        });
+
+        if (response.ok || response.status === 201) {
             const data = await response.json();
             document.getElementById('criarClienteData').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultCriarCliente').classList.remove('hidden');
-            showAlert(`✅ Cliente criado com sucesso! ID: ${data.data.id}`, 'success');
-            document.getElementById('formCriarCliente').reset();
-            } else {
+            showAlert(`✅ Cliente criado! ID: ${data.data.id || 'N/A'}`, 'success');
+        } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
         }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 2. Criar Nova Conta (SOAP)
+document.getElementById('formCriarConta').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const clienteId = parseInt(document.getElementById('clienteIdCriarConta').value);
+    const numeroConta = document.getElementById('numeroContaCriarConta').value;
+    const saldoInicial = parseFloat(document.getElementById('saldoInicialCriarConta').value);
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/soap/criarConta`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ clienteId, numeroConta, saldoInicial })
         });
 
-        // Criar Nova Conta (via SOAP)
-        document.getElementById('formCriarConta').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const clienteId = parseInt(document.getElementById('clienteIdCriarConta').value);
-        const numeroConta = document.getElementById('numeroContaCriarConta').value;
-        const saldoInicial = parseFloat(document.getElementById('saldoInicialCriarConta').value);
-
-        try {
-            const response = await fetch(`${GATEWAY_URL}/soap/criarConta`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ clienteId, numeroConta, saldoInicial })
-            });
-
-            if (response.ok || response.status === 201) {
+        if (response.ok || response.status === 201) {
             const data = await response.json();
             document.getElementById('criarContaData').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultCriarConta').classList.remove('hidden');
             showAlert(`✅ Conta criada com sucesso!`, 'success');
-            document.getElementById('formCriarConta').reset();
-            } else {
+        } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
         }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 3. Consultar Saldo (SOAP)
+document.getElementById('formSaldoSoap').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const conta = document.getElementById('contaSaldoSoap').value;
+
+    try {
+        // Se estiver autenticado, o Gateway ignora o ?conta= e usa o token
+        // Mas enviamos para manter compatibilidade caso retire o Guard
+        const response = await fetch(`${GATEWAY_URL}/banco/soap/saldo?conta=${conta}`, {
+            method: 'GET',
+            headers: getHeaders()
         });
 
-        // Consultar Saldo (SOAP)
-        document.getElementById('formSaldoSoap').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const conta = document.getElementById('contaSaldoSoap').value;
-
-        try {
-            const response = await fetch(`${GATEWAY_URL}/soap/saldo?conta=${conta}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-            });
-
-            if (response.ok) {
+        if (response.ok) {
             const data = await response.json();
             document.getElementById('saldoSoapData').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultSaldoSoap').classList.remove('hidden');
-            showAlert(`✅ Saldo consultado com sucesso via SOAP!`, 'success');
-            } else {
+            showAlert(`✅ Saldo consultado via SOAP!`, 'success');
+        } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando`, 'error');
         }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 4. Consultar Extrato (REST)
+document.getElementById('formExtratoRest').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const conta = document.getElementById('contaExtratoRest').value;
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/rest/extrato?conta=${conta}`, {
+            method: 'GET',
+            headers: getHeaders()
         });
 
-        // Consultar Extrato (REST)
-        document.getElementById('formExtratoRest').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const conta = document.getElementById('contaExtratoRest').value;
-
-        try {
-            const response = await fetch(`${GATEWAY_URL}/rest/extrato?conta=${conta}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-            });
-
-            if (response.ok) {
+        if (response.ok) {
             const data = await response.json();
             document.getElementById('extratoRestData').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultExtratoRest').classList.remove('hidden');
-            showAlert(`✅ Extrato consultado com sucesso via REST!`, 'success');
-            } else {
+            showAlert(`✅ Extrato consultado via REST!`, 'success');
+        } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}. Verifique se o Gateway está rodando`, 'error');
         }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 5. Transferência TED (SOAP)
+document.getElementById('formTransferenciaTED').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+        contaOrigem: document.getElementById('contaOrigemTED').value,
+        contaDestino: document.getElementById('contaDestinoTED').value,
+        valor: parseFloat(document.getElementById('valorTED').value)
+    };
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/soap/TED`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(body)
         });
 
-        // Criar Chave PIX (via REST)
-        document.getElementById('formCriarChavePix').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const clienteId = parseInt(document.getElementById('clienteIdChavePix').value);
-        const valor = document.getElementById('chavePixValor').value;  // AGORA É "valor"
-        const tipo = document.getElementById('tipoChavePix').value;    // AGORA É "tipo"
-        const numeroConta = document.getElementById('contaPix').value; // NOVO CAMPO
-
-        const url = `${GATEWAY_URL}/rest/clientes/${clienteId}/chaves-pix`;
-        const payload = { tipo, valor, numeroConta };  // CAMPOS CORRETOS!
-
-        console.log('URL:', url);
-        console.log('Payload:', payload);
-
-        try {
-            const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-            });
-
-            if (response.ok || response.status === 201) {
-            const data = await response.json();
-            document.getElementById('criarChavePixData').textContent = JSON.stringify(data, null, 2);
-            document.getElementById('resultCriarChavePix').classList.remove('hidden');
-            showAlert(`✅ Chave PIX criada com sucesso!`, 'success');
-            document.getElementById('formCriarChavePix').reset();
-            } else {
-            const error = await response.text();
-            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
-        }
-        });
-
-        // Realizar Transferência
-        //TED
-        document.getElementById('formTransferenciaTED').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const contaOrigem = document.getElementById('contaOrigemTED').value;
-        const contaDestino = document.getElementById('contaDestinoTED').value;
-        const valor = parseFloat(document.getElementById('valorTED').value);
-
-        try {
-            const response = await fetch(`${GATEWAY_URL}/soap/TED`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ contaOrigem, contaDestino, valor })
-            });
-
-            if (response.ok || response.status === 201) {
+        if (response.ok) {
             const data = await response.json();
             document.getElementById('resultadoTED').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultTransferenciaTED').classList.remove('hidden');
-            showAlert(`✅ Transferência TED realizada com sucesso!`, 'success');
-            document.getElementById('formTransferenciaTED').reset();
-            } else {
+            showAlert(`✅ Transferência TED realizada!`, 'success');
+        } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
-            }
-        } catch (error) {
-            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
         }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 6. Criar Chave PIX (REST)
+document.getElementById('formCriarChavePix').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const clienteId = document.getElementById('clienteIdChavePix').value;
+    const body = {
+        tipoChave: document.getElementById('tipoChavePix').value,
+        chave: document.getElementById('chavePixValor').value,
+        tipoConta: 'CORRENTE',
+        conta: document.getElementById('contaPix').value
+    };
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/rest/clientes/${clienteId}/chaves-pix`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(body)
         });
-        
-        //Pix
-        document.getElementById('formTransferenciaPIX').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const numeroContaOrigem = document.getElementById('contaOrigemPIX').value.trim();
-        const chaveDestino = document.getElementById('chaveDestinoPIX').value.trim();
-        const valorStr = document.getElementById('valorPIX').value.trim();
-        const valor = parseFloat(valorStr);
 
-        console.log('=== DEBUG PIX TRANSFER ===');
-        console.log('numeroContaOrigem:', numeroContaOrigem, 'type:', typeof numeroContaOrigem);
-        console.log('chaveDestino:', chaveDestino, 'type:', typeof chaveDestino);
-        console.log('valor:', valor, 'type:', typeof valor);
-        console.log('=== END DEBUG ===');
-
-        if (!numeroContaOrigem || !chaveDestino || isNaN(valor)) {
-            showAlert('❌ Preencha todos os campos corretamente', 'error');
-            return;
-        }
-
-        const url = `${GATEWAY_URL}/rest/pix`;
-        const payload = { 
-            numeroContaOrigem,
-            chaveDestino, 
-            valor 
-        };
-
-        console.log('Enviando para:', url);
-        console.log('Payload:', JSON.stringify(payload));
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            console.log('Status HTTP:', response.status);
+        if (response.ok || response.status === 201) {
             const data = await response.json();
-            console.log('Resposta do servidor:', data);
-
-            if (response.ok || response.status === 201) {
-                document.getElementById('resultadoPIX').textContent = JSON.stringify(data, null, 2);
-                document.getElementById('resultTransferenciaPIX').classList.remove('hidden');
-                showAlert(`✅ Transferência PIX realizada com sucesso!`, 'success');
-                document.getElementById('formTransferenciaPIX').reset();
-            } else {
-                const errorMsg = data.message || data.error || JSON.stringify(data);
-                console.error('Erro na resposta:', errorMsg);
-                showAlert(`❌ Erro ${response.status}: ${errorMsg}`, 'error');
-            }
-        } catch (error) {
-            console.error('Erro na requisição:', error);
-            showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+            document.getElementById('criarChavePixData').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultCriarChavePix').classList.remove('hidden');
+            showAlert(`✅ Chave PIX criada!`, 'success');
+        } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
         }
-    });
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 7. Transferência PIX (REST)
+document.getElementById('formTransferenciaPIX').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+        contaOrigem: document.getElementById('contaOrigemPIX').value, // Ajuste para nome do DTO
+        chaveDestino: document.getElementById('chaveDestinoPIX').value,
+        valor: parseFloat(document.getElementById('valorPIX').value)
+    };
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/banco/rest/pix`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('resultadoPIX').textContent = JSON.stringify(data, null, 2);
+            document.getElementById('resultTransferenciaPIX').classList.remove('hidden');
+            showAlert(`✅ Transferência PIX realizada!`, 'success');
+        } else {
+            const error = await response.text(); // Use .text() para pegar erro bruto se não for json
+            showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+        }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// Inicia verificação ao carregar a página
+verificarLogin();

@@ -51,9 +51,11 @@ export class BancoSoapController {
       const dados = await this.soapService.chamarServico('realizarTransferenciaTED', body);
 
       // Tentar notificar o destinatário; não deve quebrar a resposta principal
-      this.notificationsService
-        .notificarTransacao(String(body.contaDestino), Number(body.valor), 'TED')
-        .catch((err) => console.error('Falha ao notificar destinatário (TED):', err));
+      this.notificationsService.notificarTransacao({
+          conta: String(body.contaDestino),
+          valor: Number(body.valor),
+          tipo: 'TED'
+      });
 
       return {
         data: dados,

@@ -1,20 +1,29 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import axios from 'axios';
+import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class NotificationsService {
-  private wsServiceUrl = process.env.WS_SERVICE_URL || 'http://localhost:4000';
+  constructor(private readonly httpService: HttpService) {}
 
-  async notificarTransacao(destinatarioId: string, valor: number, tipo: 'PIX' | 'TED'): Promise<void> {
+  async notificarTransacao(dados: any) {
+    const url = 'http://localhost:8083/notify'; 
+
+    const payload = {
+      destinatarioId: String(dados.contaDestino || dados.conta),
+      valor: dados.valor,
+      tipo: dados.tipo || 'TRANSFERENCIA',
+      data: new Date()
+    };
+
+    console.log(`[NOTIFICAÇÃO] Enviando aviso para ${url}...`);
+
     try {
-      await axios.post(`${this.wsServiceUrl}/notify`, {
-        destinatarioId,
-        valor,
-        tipo,
-      });
+      await firstValueFrom(this.httpService.post(url, payload));
+      
+      console.log('✅ Notificação entregue ao serviço WebSocket!');
     } catch (error) {
-      console.error('Erro ao notificar via websocket', error);
-      throw new HttpException('Falha ao notificar cliente', HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('⚠️ Falha ao notificar (O serviço WebSocket pode estar offline):', error.message);
     }
   }
 }

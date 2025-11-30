@@ -42,9 +42,11 @@ export class BancoRestController {
         const dados = await this.restService.realizarPix(body);
 
         // Notificar destinatário via NotificationsService (não bloqueante)
-        this.notificationsService
-            .notificarTransacao(String(body.chaveDestino ?? body.contaDestino ?? ''), Number(body.valor), 'PIX')
-            .catch((err) => console.error('Falha ao notificar destinatário (PIX):', err));
+        this.notificationsService.notificarTransacao({
+                conta: String(body.chaveDestino ?? body.contaDestino ?? ''), 
+                valor: Number(body.valor), 
+                tipo: 'PIX'
+        });
 
         return {
             data: dados,

@@ -3,20 +3,27 @@ import WebSocket, { WebSocketServer } from 'ws';
 import express from 'express';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import cors from 'cors'; 
 
 const app = express();
-app.use(express.json());
+
+app.use(cors({ origin: '*' })); 
+app.use(express.json()); 
 
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+
+const wss = new WebSocketServer({ server, path: '/ws' });
 
 type ClientId = string;
 const clients = new Map<ClientId, WebSocket>();
 
-// Endpoint HTTP que o API Gateway vai chamar para notificar
-app.post('/notify', (req: Request, res: Response) => {
-  const { destinatarioId, valor, tipo } = req.body; // tipo: 'PIX' | 'TED'
+app.post('/notify', (req: Request, res: Response) => { 
+  const { destinatarioId, valor, tipo } = req.body;
+  
+  console.log(`[NOTIFY] Recebido para ${destinatarioId}: R$ ${valor}`);
+
   const ws = clients.get(destinatarioId);
+  
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(
       JSON.stringify({
@@ -24,60 +31,65 @@ app.post('/notify', (req: Request, res: Response) => {
         data: { destinatarioId, valor, tipo, timestamp: new Date().toISOString() },
       }),
     );
+    console.log(`[WS] Mensagem enviada para o socket do cliente ${destinatarioId}`);
+  } else {
+    console.log(`[WS] Cliente ${destinatarioId} offline ou desconectado.`);
   }
+  
   res.status(200).json({ ok: true });
 });
 
-// Ciclo de vida do WebSocket com autenticação via JWT
+// Ciclo de vida do WebSocket
 wss.on('connection', (socket, request) => {
-  // Ex: ws://localhost:4000?clienteId=123&token=eyJ...
+  console.log('[WS] Nova tentativa de conexão...');
+
   const url = new URL(request.url ?? '', 'http://localhost');
   const token = url.searchParams.get('token');
-  const claimedId = url.searchParams.get('clienteId');
+  
+  // IMPORTANTE: Esse segredo TEM que ser igual ao do Gateway (AuthModule)
+  const secret = 'secret'; 
 
-  const secret = process.env.WS_JWT_SECRET || 'CHANGE_ME_IN_PROD';
-
-  // validar token
   let clienteId: string | null = null;
+
   if (!token) {
-    // Sem token: recusar conexão
-    try { socket.close(1008, 'Unauthorized'); } catch (e) { socket.terminate(); }
+    socket.close(1008, 'Token Obrigatório');
     return;
   }
 
   try {
-    const payload = jwt.verify(token, secret) as jwt.JwtPayload | string;
-    if (typeof payload === 'string') {
-      // payload string não esperado
-      try { socket.close(1008, 'Unauthorized'); } catch (e) { socket.terminate(); }
-      return;
-    }
-
-    // Preferir claim 'sub' ou 'clienteId' do token. Se claim ausente, usar o clienteId informado (menos seguro).
-    clienteId = (payload.sub as string) ?? (payload.clienteId as string) ?? claimedId ?? null;
+    // Valida o Token gerado pelo seu Gateway
+    const payload = jwt.verify(token, secret) as jwt.JwtPayload;
+    
+    // Pega o ID da conta do payload (campo 'sub')
+    clienteId = payload.sub as string;
+    
     if (!clienteId) {
-      try { socket.close(1008, 'Unauthorized'); } catch (e) { socket.terminate(); }
-      return;
+       socket.close(1008, 'Token sem ID de conta (sub)');
+       return;
     }
+    
+    console.log(`[WS] Cliente Autenticado: ${clienteId}`);
+
   } catch (err) {
-    console.error('JWT inválido na conexão WS:', err);
-    try { socket.close(1008, 'Unauthorized'); } catch (e) { socket.terminate(); }
+    console.error('JWT inválido:', err.message);
+    socket.close(1008, 'Token Inválido');
     return;
   }
 
-  // Registra cliente autenticado
+  // Registra
   clients.set(clienteId, socket);
 
-  socket.on('close', () => {
-    clients.delete(clienteId as string);
-  });
+  socket.send(JSON.stringify({ event: 'info', message: 'Conectado com sucesso!' }));
 
-  socket.on('error', () => {
+  socket.on('close', () => {
+    console.log(`[WS] Cliente ${clienteId} desconectou.`);
     clients.delete(clienteId as string);
   });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8083;
 server.listen(PORT, () => {
-  console.log(`WS service rodando na porta ${PORT}`);
+  console.log(`🚀 Serviço de Notificações rodando na porta ${PORT}`);
+  console.log(`   - HTTP POST: http://localhost:${PORT}/notify`);
+  console.log(`   - WebSocket: ws://localhost:${PORT}/ws`);
 });
