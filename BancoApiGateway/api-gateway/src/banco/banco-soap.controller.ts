@@ -1,12 +1,14 @@
 import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { BancoCoreSoapService } from '../banco-core-soap/banco-core-soap.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @ApiTags('banco-soap')
 @Controller('banco/soap')
 export class BancoSoapController {
   constructor(
     private readonly soapService: BancoCoreSoapService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
     @Get('saldo')
@@ -45,20 +47,25 @@ export class BancoSoapController {
     async realizarTED(@Body() body: any) {
       const dados = await this.soapService.chamarServico('realizarTransferenciaTED', body);
 
+      // Tentar notificar o destinatário; não deve quebrar a resposta principal
+      this.notificationsService
+        .notificarTransacao(String(body.contaDestino), Number(body.valor), 'TED')
+        .catch((err) => console.error('Falha ao notificar destinatário (TED):', err));
+
       return {
         data: dados,
         links: {
-            ver_novo_saldo: {
-                href: `http://localhost:3000/banco/soap/saldo?conta=${body.contaOrigem}`,
-                method: 'GET',
-                title: 'Consultar saldo atualizado'
-            },
-            nova_ted: {
-                href: `http://localhost:3000/banco/soap/TED`,
-                method: 'POST',
-                title: 'Realizar outra transferência'
-            }
-        }
+          ver_novo_saldo: {
+            href: `http://localhost:3000/banco/soap/saldo?conta=${body.contaOrigem}`,
+            method: 'GET',
+            title: 'Consultar saldo atualizado',
+          },
+          nova_ted: {
+            href: `http://localhost:3000/banco/soap/TED`,
+            method: 'POST',
+            title: 'Realizar outra transferência',
+          },
+        },
       };
     }
 
