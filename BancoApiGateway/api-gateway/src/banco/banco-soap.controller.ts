@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { BancoCoreSoapService } from '../banco-core-soap/banco-core-soap.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('banco-soap')
 @Controller('banco/soap')
@@ -9,13 +10,15 @@ export class BancoSoapController {
     private readonly soapService: BancoCoreSoapService,
   ) {}
 
+    @UseGuards(AuthGuard('jwt'))
     @Get('saldo')
     @ApiOperation({ summary: 'Consulta saldo (Legado)' })
-    async getSaldo(@Query('conta') conta: string) {
-      if (!conta) {
-        throw new BadRequestException('O parâmetro "conta" é obrigatório.');
-      }
-      const dados = await this.soapService.chamarServico('consultarSaldo', { numeroConta: conta });
+    async getSaldo(@Request() req) {
+      const contaDoToken = req.user.conta; 
+    
+      console.log(`Usuário autenticado consultando saldo: ${contaDoToken}`);
+
+      const dados = await this.soapService.chamarServico('consultarSaldo', { numeroConta: contaDoToken });
 
       return {
         data: dados,
@@ -40,7 +43,7 @@ export class BancoSoapController {
     }
 
     @Post('TED')
-    @ApiOperation({ summary: 'Realiza transferência TED' })
+    @ApiOperation({ summary: 'Realizar transferência TED' })
     @ApiBody({ schema: { example: { contaOrigem: "190612", contaDestino: "123456", valor: 100 } } })
     async realizarTED(@Body() body: any) {
       const dados = await this.soapService.chamarServico('realizarTransferenciaTED', body);
