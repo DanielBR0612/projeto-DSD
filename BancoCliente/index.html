@@ -57,8 +57,13 @@
                     </svg>
                     <span class="ml-2 text-xl font-bold text-gray-800">Banco DSD</span>
                 </div>
-                <div class="flex items-center">
-                    <span class="text-sm text-gray-600">Sistema Distribuído SOAP + REST</span>
+                
+                <div class="flex items-center gap-4">
+                    <span id="labelConta" class="text-sm text-gray-600 hidden md:block"></span>
+                    
+                    <button onclick="fazerLogout()" class="px-4 py-2 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors">
+                        Sair (Logout)
+                    </button>
                 </div>
             </div>
         </div>

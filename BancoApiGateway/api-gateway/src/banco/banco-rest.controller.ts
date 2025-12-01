@@ -39,7 +39,18 @@ export class BancoRestController {
     @ApiOperation({ summary: 'Realiza transferência PIX' })
     @ApiBody({ schema: { example: { contaOrigem: 190612, chaveDestino: "190612", valor: 100.50 } } })
     async realizarPix(@Body() body: any) {
-        const dados = await this.restService.realizarPix(body);
+        const payload = {
+
+            numeroContaOrigem: body.contaOrigem, 
+            
+            chaveDestino: body.chaveDestino,
+            
+            valor: Number(body.valor),
+            
+            tipo: 'PIX' 
+        };
+
+        const dados = await this.restService.realizarPix(payload);
 
         // Notificar destinatário via NotificationsService (não bloqueante)
         this.notificationsService.notificarTransacao({
