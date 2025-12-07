@@ -3,10 +3,16 @@ import { soap } from 'strong-soap';
 
 @Injectable()
 export class BancoCoreSoapService {
-  private wsdlUrl = 'http://localhost:8080/ws/banco.wsdl';
+  private wsdlUrl: string;
   
-  private usuario = 'admin';    
+  private usuario = 'admin';
   private senha = 'senha123';
+
+  constructor() {
+    const soapEnv = process.env.SOAP_URL || 'http://localhost:8081';
+    const base = soapEnv.replace(/\/$/, '');
+    this.wsdlUrl = `${base}/ws/banco.wsdl`;
+  }
 
   async chamarServico(acao: string, payload: any): Promise<any> {
     return new Promise((resolve, reject) => {

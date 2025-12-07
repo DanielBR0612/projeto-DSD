@@ -25,12 +25,21 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-ws": "^11.1.9",
+    "@nestjs/websockets": "^11.0.0",
     "@nestjs/swagger": "^11.2.3",
+    "@nestjs/jwt": "^11.0.1",
+    "@nestjs/passport": "^11.0.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "axios": "^1.13.2",
-    "reflect-metadata": "^0.2.2",
+    "reflect-metadata": "0.2.2",
     "rxjs": "^7.8.1",
+    "uuid": "3.4.0",
     "strong-soap": "^5.0.4",
     "swagger-ui-express": "^5.0.1"
+  },
+  "overrides": {
+    "uuid": "3.4.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

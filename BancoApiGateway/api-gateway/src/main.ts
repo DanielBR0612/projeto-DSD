@@ -13,7 +13,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
-  app.useWebSocketAdapter(new WsAdapter(app));
+  app.useWebSocketAdapter(new (WsAdapter as any)(app));
   
   const config = new DocumentBuilder()
     .setTitle('API Gateway Bancário')

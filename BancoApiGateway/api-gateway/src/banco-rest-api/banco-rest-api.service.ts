@@ -3,7 +3,11 @@ import axios from 'axios';
 
 @Injectable()
 export class BancoRestApiService {
-  private baseUrl = 'http://localhost:8081'; 
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = (process.env.REST_URL || 'http://localhost:8081').replace(/\/$/, '');
+  }
   
   private async get(endpoint: string) {
     try {
