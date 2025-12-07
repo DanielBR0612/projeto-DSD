@@ -30,6 +30,8 @@ projeto-DSD/
 
 ## 1. Pré-requisitos
 
+- **Docker** (20.10+, para containerização)
+- **Docker Compose** (2.0+, para orquestração dos serviços)
 - **Node.js** (v18, para os serviços Nest.JS)
 - **Java 21** (para os serviços Spring Boot)
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
@@ -69,39 +71,32 @@ psql -U postgres
 CREATE DATABASE banco_dsd
 \q
 ```
-Dica: recomendamos inicializar primeiro o sistema legado SOAP, em seguida o sistema REST e só então criar banco de dados.
-
 ---
 
 ## 4. Inicializando os serviços
 
-### 4.1 Backend SOAP (Java Spring Boot)
-```
-cd BancoCoreSOAP
-./mvnw spring-boot:run
-```
-ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoCoreSoapApplication.java** e selecionando "Run as java application" (Eclipse). 
+### Usando Docker Compose
 
-- Por padrão roda na porta **8080**
+Para inicializar todos os serviços (PostgreSQL, Bancos Backend, API Gateway, RabbitMQ), execute:
 
-### 4.2 Backend REST (Kotlin Spring Boot)
+```bash
+docker-compose up -d
 ```
-cd BancoRestApi
-./mvnw spring-boot:run
-```
-ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoRestApiApplication.kt** e selecionando "Run" (IntelliJ IDEA). 
 
-- Por padrão roda na porta **8081**
+Isso iniciará:
+- PostgreSQL na porta 5432
+- Backend SOAP (BancoCoreSOAP) na porta 8080
+- Backend REST (BancoRestApi) na porta 8081  
+- API Gateway (BancoApiGateway) na porta 3000
+- RabbitMQ Management na porta 15672
 
-### 4.3 API Gateway (NestJS/Node.js)
-```
-cd BancoApiGateway/api-gateway
-npm install
-npm run start:dev
-```
-- Roda na porta **3000**
-- O gateway redireciona chamadas REST/SOAP para os respectivos backends
+**Parar os serviços:**
 
+```bash
+docker-compose down
+```
+
+> **Nota Importante:** Os arquivos `docker-compose.yaml` e Dockerfiles de cada serviço já estão configurados na branch `rabbit`. Certifique-se de estar na branch correta antes de executar o comando acima.
 ---
 
 ## 5. Cliente Web (HTML + Tailwind CSS)
@@ -115,8 +110,6 @@ npm run start:dev
   - **Transferência TED** (SOAP)
   - **Criar Chave PIX** (REST)
   - **Transferência PIX** (REST)
-
-> ⚠️ Certifique-se de que os serviços acima estão rodando antes de usar.
 
 ---
 
@@ -139,9 +132,7 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 
 ## 7. Fluxos para Teste
 
-1. **Inicie todos os serviços** (Gateway, REST, SOAP) em terminais diferentes. 
-
-    Dica: Para uma melhor experiência recomendamos o uso dos IDE Eclipse para o SOAP (Java), IntelliJ IDEA para o REST (Kotlin) e o VSCode para o Gateway (Nest.JS).
+1. **Inicie os serviços com Docker Compose** executando `docker-compose up -d` na raiz do projeto (veja Seção 4).
 
 2. **Use o Cliente Web**:
    - Primeiro crie um novo cliente (SOAP).
@@ -166,6 +157,7 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 - **HTML & Tailwind CSS** (cliente web didático)
 - **Python** (cliente de terminal)
 - **PostgreSQL** (persistência)
+- **RabbitMQ** (fila de mensagens para notificações persistentes)
 
 ---
 
