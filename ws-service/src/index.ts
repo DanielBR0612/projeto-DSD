@@ -87,8 +87,8 @@ wss.on('connection', (socket, request) => {
   });
 });
 
-const PORT = process.env.PORT || 8083;
-server.listen(PORT, () => {
+const PORT = Number(process.env.PORT || 8083);
+server.listen(PORT, '0.0.0.0', () => {
   console.log(` Serviço de Notificações rodando na porta ${PORT}`);
   console.log(`   - HTTP POST: http://localhost:${PORT}/notify`);
   console.log(`   - WebSocket: ws://localhost:${PORT}/ws`);
