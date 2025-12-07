@@ -188,7 +188,7 @@ Notificações por WebSocket autenticadas por JWT e integração com o API Gatew
    - Mantunção de apenas uma conexão WebSocket por cliente (fecha a anterior ao abrir nova).
    - `NotificationsService` foi adicionado nos controladores de transferência (TED e PIX). O gateway faz POST para o `ws-service` `/notify` para solicitar envio de notificações quando houver transferência.
 
-Como usar:
+### Como usar:
 
 1. Defina o segredo JWT para o `ws-service`:
 
@@ -212,7 +212,88 @@ node tools/generateToken.js 12345
 
 ---
 
-## 11. Créditos
+## 11. Implementação de Fila RabbitMQ para Notificações Persistentes
+
+Fila de mensagens utilizando RabbitMQ para garantir a persistência e entrega de notificações de transferências, mesmo quando o cliente não está conectado ao WebSocket, justamente eveitando que as notificações sejam perdidas caso ocliente se desconectasse. Esta implementação permite que as mensagens são enfileiradas e entregues quando o cliente reconecta.
+
+### Arquitetura da Solução
+
+```
+TED/PIX (SOAP/REST)
+        ↓
+   NotificationService
+        ↓
+   RabbitMQ (Fila Persistente)
+        ↓
+   ws-service (Consumer)
+        ↓
+   WebSocket → Cliente
+```
+
+**Fluxo:**
+1. Cliente realiza transferência TED (SOAP) ou PIX (REST)
+2. Backend persiste transação e publica notificação na fila RabbitMQ
+3. ws-service consome mensagens da fila
+4. Se cliente online: entrega imediata via WebSocket
+5. Se cliente offline: mensagem fica na fila até reconexão (TTL: 24h)
+6. Mensagens com erro: movidas para Dead Letter Queue (DLQ) para análise
+
+### Como usar
+
+#### 1. Iniciar Docker
+
+```bash
+docker-compose up -d
+```
+
+Isso inicia: PostgreSQL, RabbitMQ (painel em http://localhost:15672)
+
+#### 2. Iniciar Backends em Terminais Separados
+
+```bash
+# Terminal 1
+cd BancoCoreSOAP && ./mvnw spring-boot:run
+
+# Terminal 2
+cd BancoRestApi && ./mvnw spring-boot:run
+
+# Terminal 3
+cd BancoApiGateway/api-gateway && npm install && npm run start:dev
+
+# Terminal 4
+cd ws-service && npm install && export WS_JWT_SECRET=$(openssl rand -hex 32) && npm run dev
+```
+
+#### 3. Testar
+
+**Cliente Online:**
+1. Abra `BancoCliente/index.html`
+2. Cole token JWT no campo `#wsToken`
+3. Realize transferência PIX ou TED
+4. Notificação entregue imediatamente via WebSocket 
+
+**Cliente Offline:**
+1. Feche conexão WebSocket
+2. Realize transferência
+3. Reconecte ao WebSocket
+4. Notificações atrasadas entregues automaticamente 
+
+### Monitoramento
+
+**Painel RabbitMQ:** `http://localhost:15672` (guest/guest)
+- Visualizar filas e mensagens
+- Verificar Dead Letter Queue
+- Monitorar saúde da fila
+
+### Benefícios
+
+Notificações persistentes (24h TTL)
+Funciona para TED e PIX simultaneamente
+Sem perda de mensagens
+
+---
+
+## 12. Créditos
 
 **[Daniel Braga](https://github.com/DanielBR0612) & [Josephy Araújo](https://github.com/seu-usuario-github) — IFRN**
 
