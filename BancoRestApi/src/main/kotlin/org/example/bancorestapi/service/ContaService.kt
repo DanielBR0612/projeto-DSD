@@ -13,6 +13,7 @@ import org.example.bancorestapi.repository.ChavePixRepository
 import org.example.bancorestapi.repository.ContaRepository
 import org.example.bancorestapi.repository.TransacaoRepository
 import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -23,6 +24,9 @@ class ContaService (
     private val chavePixRepository: ChavePixRepository,
     private val contaRepository: ContaRepository
 ) {
+    @Autowired
+    private lateinit var notificationService: NotificationService
+
     @Transactional
     fun realizarTransferenciaPix(request: PixTransferRequestDTO): PixTransferResponseDTO {
 
@@ -72,6 +76,13 @@ class ContaService (
         credito.valor = request.valor
 
         transacaoRepository.saveAll(listOf(debito, credito))
+
+        val clienteIdDestino = contaDestino.cliente?.id ?: contaDestino.id
+        notificationService.publishTransferenceNotification(
+            clienteIdDestino,
+            request.valor,
+            "PIX"
+        )
 
         val response = PixTransferResponseDTO(
             status = "Sucesso",
