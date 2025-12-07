@@ -15,7 +15,7 @@ Este projeto simula um **sistema bancário distribuído** usando múltiplos back
 ---
 
 ## Estrutura dos diretórios
-
+```
 projeto-DSD/
 ├── docker-compose.yaml          # Orquestração de todos os serviços com Docker
 ├── .gitignore                   # Arquivos a ignorar no Git
@@ -39,7 +39,7 @@ projeto-DSD/
 └── BancoCliente/                # Cliente web + Cliente Python
     ├── index.html               # Interface web (HTML + Tailwind CSS)
     └── cliente_banco.py         # Cliente de terminal (Python)
-    
+```
 ---
 
 ## 1. Pré-requisitos
