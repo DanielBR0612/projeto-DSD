@@ -17,15 +17,29 @@ Este projeto simula um **sistema bancário distribuído** usando múltiplos back
 ## Estrutura dos diretórios
 
 projeto-DSD/
-
-├── BancoApiGateway/ # API Gateway (NestJS)
-
-├── BancoCoreSOAP/ # Backend SOAP (Spring Boot - Java)
-
-├── BancoRestApi/ # Backend REST (Spring Boot - Kotlin)
-
-├── BancoCliente/ # Cliente web + Cliente Python
-
+├── docker-compose.yaml          # Orquestração de todos os serviços com Docker
+├── .gitignore                   # Arquivos a ignorar no Git
+├── README.md                    # Este arquivo
+│
+├── BancoApiGateway/             # API Gateway (NestJS)
+│   ├── Dockerfile               # Imagem Docker do Gateway
+│   ├── src/                     # Código-fonte
+│   └── package.json
+│
+├── BancoCoreSOAP/               # Backend SOAP (Spring Boot - Java)
+│   ├── Dockerfile               # Imagem Docker do serviço SOAP
+│   ├── src/                     # Código-fonte
+│   └── pom.xml
+│
+├── BancoRestApi/                # Backend REST (Spring Boot - Kotlin)
+│   ├── Dockerfile               # Imagem Docker do serviço REST
+│   ├── src/                     # Código-fonte
+│   └── pom.xml
+│
+└── BancoCliente/                # Cliente web + Cliente Python
+    ├── index.html               # Interface web (HTML + Tailwind CSS)
+    └── cliente_banco.py         # Cliente de terminal (Python)
+    
 ---
 
 ## 1. Pré-requisitos
