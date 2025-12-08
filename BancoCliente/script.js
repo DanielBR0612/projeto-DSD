@@ -1,7 +1,17 @@
 // --- CONFIGURAÇÕES ---
 // Aponta para a raiz do Gateway. Os endpoints adicionam /banco/soap ou /banco/rest
-const GATEWAY_URL = 'http://localhost:8000'; 
-const WS_URL = 'ws://localhost:8083/ws'; // Ajuste a porta se seu WS estiver na 8083
+const CODESPACE_NAME = window.location.hostname.split('-')[0] + '-' + window.location.hostname.split('-')[1] + '-' + window.location.hostname.split('-')[2];
+const GATEWAY_URL = window.location.hostname.includes('github.dev') 
+    ? `https://${window.location.hostname.replace('-5500', '-8000')}` 
+    : 'http://localhost:8000';
+const WS_URL = window.location.hostname.includes('github.dev')
+    ? `wss://${window.location.hostname.replace('-5500', '-8083')}/ws`
+    : 'ws://localhost:8083/ws';
+
+console.log('🔧 CONFIGURAÇÃO DE URLs:');
+console.log('   Gateway:', GATEWAY_URL);
+console.log('   WebSocket:', WS_URL);
+console.log('   Hostname:', window.location.hostname);
 
 // Recupera token e conta salvos no login
 let token = localStorage.getItem('banco_token');
@@ -430,10 +440,9 @@ document.getElementById('formCriarChavePix').addEventListener('submit', async (e
     e.preventDefault();
     const clienteId = document.getElementById('clienteIdChavePix').value;
     const body = {
-        tipoChave: document.getElementById('tipoChavePix').value,
-        chave: document.getElementById('chavePixValor').value,
-        tipoConta: 'CORRENTE',
-        conta: document.getElementById('contaPix').value
+        tipo: document.getElementById('tipoChavePix').value,
+        valor: document.getElementById('chavePixValor').value,
+        numeroConta: document.getElementById('contaPix').value
     };
 
     try {

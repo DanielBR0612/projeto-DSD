@@ -5,5 +5,6 @@ import java.math.BigDecimal
 data class PixTransferResponseDTO(
     var status: String,
     var mensagem: String,
-    var novoSaldoOrigem: BigDecimal
+    var novoSaldoOrigem: BigDecimal,
+    var numeroContaDestino: String = ""
 )

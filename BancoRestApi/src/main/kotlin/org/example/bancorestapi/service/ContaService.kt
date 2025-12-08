@@ -87,7 +87,8 @@ class ContaService (
         val response = PixTransferResponseDTO(
             status = "Sucesso",
             mensagem = "Transferencia PIX realizada com sucesso",
-            novoSaldoOrigem = contaOrigem.saldo
+            novoSaldoOrigem = contaOrigem.saldo,
+            numeroContaDestino = contaDestino.numeroConta
         )
 
         return response

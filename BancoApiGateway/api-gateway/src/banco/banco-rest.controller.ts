@@ -52,11 +52,14 @@ export class BancoRestController {
 
         const dados = await this.restService.realizarPix(payload);
 
+        console.log('DEBUG PIX RESPONSE:', dados);
+
         // Notificar destinatário via NotificationsService (não bloqueante)
         this.notificationsService.notificarTransacao({
-                conta: String(body.chaveDestino ?? body.contaDestino ?? ''), 
-                valor: Number(body.valor), 
-                tipo: 'PIX'
+            contaDestino: String(dados.numeroContaDestino ?? body.chaveDestino ?? body.contaDestino ?? ''), 
+            valor: Number(body.valor), 
+            tipo: 'PIX',
+            timestamp: new Date().toISOString()
         });
 
         return {
