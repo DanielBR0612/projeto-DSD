@@ -11,6 +11,7 @@ export class NotificationsService {
 
   async notificarTransacao(dados: any) {
     const { destinatarioId, valor, tipo } = dados;
+    const url = 'http://ws-service:8083/notify'; 
 
     console.log(`[NOTIFICAÇÃO] Enfileirando para ${destinatarioId}: R$ ${valor}`);
 
