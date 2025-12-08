@@ -9,10 +9,11 @@ import { BancoRestController } from './banco/banco-rest.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 import { NotificationsModule } from './notifications/notifications.module';
+import { QueueService } from './queue/queue.service';
 
 @Module({
   imports: [BancoCoreSoapModule, BancoRestApiModule, NotificationsModule, AuthModule],
   controllers: [AppController, BancoSoapController, BancoRestController,  AuthController],
-  providers: [AppService],
+  providers: [AppService, QueueService],
 })
 export class AppModule {}

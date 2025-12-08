@@ -1,6 +1,7 @@
 package com.example.BancoCoreSoap.service;
 
 import org.springframework.stereotype.Service;
+import com.example.BancoCoreSoap.service.NotificationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,6 +34,9 @@ public class ContaService {
 	
 	@Autowired
 	private TransacaoRepository transacaoRepository;
+
+	@Autowired
+    private NotificationService notificationService;
 	
 	@Transactional
 	public CriarContaResponse create(CriarContaRequest request) {
@@ -93,6 +97,13 @@ public class ContaService {
 		
 		Transacao savedDebito = transacaoRepository.save(debito);
 		Transacao savedCredito = transacaoRepository.save(credito);
+
+		String clienteIdDestino = String.valueOf(contaDestino.getCliente().getId());
+        notificationService.publishTransferenceNotification(
+            clienteIdDestino,
+            request.getValor(),
+            "TED"
+        );
 		
 		RealizarTransferenciaTEDResponse response = new RealizarTransferenciaTEDResponse();
 		response.setStatus("SUCESSO");

@@ -52,6 +52,23 @@ services:
     networks:
       - app-network
 
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: projeto-dsd-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
   gateway:
     build: ./BancoApiGateway
     container_name: container_gateway

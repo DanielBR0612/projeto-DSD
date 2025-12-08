@@ -1,29 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { QueueService } from '../queue/queue.service';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly queueService: QueueService,
+  ) {}
 
   async notificarTransacao(dados: any) {
+    const { destinatarioId, valor, tipo } = dados;
     const url = 'http://ws-service:8083/notify'; 
 
-    const payload = {
-      destinatarioId: String(dados.contaDestino || dados.conta),
-      valor: dados.valor,
-      tipo: dados.tipo || 'TRANSFERENCIA',
-      data: new Date()
-    };
+    console.log(`[NOTIFICAÇÃO] Enfileirando para ${destinatarioId}: R$ ${valor}`);
 
-    console.log(`[NOTIFICAÇÃO] Enviando aviso para ${url}...`);
+    // Publica na fila RabbitMQ
+    await this.queueService.publishNotification({
+      destinatarioId,
+      valor,
+      tipo,
+    });
 
+    // Tenta entregar via WebSocket (rota alternativa rápida)
     try {
-      await firstValueFrom(this.httpService.post(url, payload));
-      
-      console.log('✅ Notificação entregue ao serviço WebSocket!');
+      await this.httpService
+        .post(`http://localhost:8083/notify`, { destinatarioId, valor, tipo })
+        .toPromise();
+      console.log('✅ Notificação enviada via WebSocket');
     } catch (error) {
-      console.error('⚠️ Falha ao notificar (O serviço WebSocket pode estar offline):', error.message);
+      console.log('⚠️ Cliente WebSocket offline - notificação aguardando na fila');
     }
   }
 }

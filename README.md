@@ -15,21 +15,37 @@ Este projeto simula um **sistema bancário distribuído** usando múltiplos back
 ---
 
 ## Estrutura dos diretórios
-
+```
 projeto-DSD/
-
-├── BancoApiGateway/ # API Gateway (NestJS)
-
-├── BancoCoreSOAP/ # Backend SOAP (Spring Boot - Java)
-
-├── BancoRestApi/ # Backend REST (Spring Boot - Kotlin)
-
-├── BancoCliente/ # Cliente web + Cliente Python
-
+├── docker-compose.yaml          # Orquestração de todos os serviços com Docker
+├── .gitignore                   # Arquivos a ignorar no Git
+├── README.md                    # Este arquivo
+│
+├── BancoApiGateway/             # API Gateway (NestJS)
+│   ├── Dockerfile               # Imagem Docker do Gateway
+│   ├── src/                     # Código-fonte
+│   └── package.json
+│
+├── BancoCoreSOAP/               # Backend SOAP (Spring Boot - Java)
+│   ├── Dockerfile               # Imagem Docker do serviço SOAP
+│   ├── src/                     # Código-fonte
+│   └── pom.xml
+│
+├── BancoRestApi/                # Backend REST (Spring Boot - Kotlin)
+│   ├── Dockerfile               # Imagem Docker do serviço REST
+│   ├── src/                     # Código-fonte
+│   └── pom.xml
+│
+└── BancoCliente/                # Cliente web + Cliente Python
+    ├── index.html               # Interface web (HTML + Tailwind CSS)
+    └── cliente_banco.py         # Cliente de terminal (Python)
+```
 ---
 
 ## 1. Pré-requisitos
 
+- **Docker** (20.10+, para containerização)
+- **Docker Compose** (2.0+, para orquestração dos serviços)
 - **Node.js** (v18, para os serviços Nest.JS)
 - **Java 21** (para os serviços Spring Boot)
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
@@ -69,39 +85,32 @@ psql -U postgres
 CREATE DATABASE banco_dsd
 \q
 ```
-Dica: recomendamos inicializar primeiro o sistema legado SOAP, em seguida o sistema REST e só então criar banco de dados.
-
 ---
 
 ## 4. Inicializando os serviços
 
-### 4.1 Backend SOAP (Java Spring Boot)
-```
-cd BancoCoreSOAP
-./mvnw spring-boot:run
-```
-ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoCoreSoapApplication.java** e selecionando "Run as java application" (Eclipse). 
+### Usando Docker Compose
 
-- Por padrão roda na porta **8080**
+Para inicializar todos os serviços (PostgreSQL, Bancos Backend, API Gateway, RabbitMQ), execute:
 
-### 4.2 Backend REST (Kotlin Spring Boot)
+```bash
+docker-compose up -d
 ```
-cd BancoRestApi
-./mvnw spring-boot:run
-```
-ou pleo IDE, clicando com o botão direto do mouse sobre o arquivo **BancoRestApiApplication.kt** e selecionando "Run" (IntelliJ IDEA). 
 
-- Por padrão roda na porta **8081**
+Isso iniciará:
+- PostgreSQL na porta 5432
+- Backend SOAP (BancoCoreSOAP) na porta 8080
+- Backend REST (BancoRestApi) na porta 8081  
+- API Gateway (BancoApiGateway) na porta 3000
+- RabbitMQ Management na porta 15672
 
-### 4.3 API Gateway (NestJS/Node.js)
-```
-cd BancoApiGateway/api-gateway
-npm install
-npm run start:dev
-```
-- Roda na porta **3000**
-- O gateway redireciona chamadas REST/SOAP para os respectivos backends
+**Parar os serviços:**
 
+```bash
+docker-compose down
+```
+
+> **Nota Importante:** Os arquivos `docker-compose.yaml` e Dockerfiles de cada serviço já estão configurados na branch `rabbit`. Certifique-se de estar na branch correta antes de executar o comando acima.
 ---
 
 ## 5. Cliente Web (HTML + Tailwind CSS)
@@ -115,8 +124,6 @@ npm run start:dev
   - **Transferência TED** (SOAP)
   - **Criar Chave PIX** (REST)
   - **Transferência PIX** (REST)
-
-> ⚠️ Certifique-se de que os serviços acima estão rodando antes de usar.
 
 ---
 
@@ -139,9 +146,7 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 
 ## 7. Fluxos para Teste
 
-1. **Inicie todos os serviços** (Gateway, REST, SOAP) em terminais diferentes. 
-
-    Dica: Para uma melhor experiência recomendamos o uso dos IDE Eclipse para o SOAP (Java), IntelliJ IDEA para o REST (Kotlin) e o VSCode para o Gateway (Nest.JS).
+1. **Inicie os serviços com Docker Compose** executando `docker-compose up -d` na raiz do projeto (veja Seção 4).
 
 2. **Use o Cliente Web**:
    - Primeiro crie um novo cliente (SOAP).
@@ -166,6 +171,7 @@ O cliente exibirá um menu com opções de consultar saldo e transferências. Ve
 - **HTML & Tailwind CSS** (cliente web didático)
 - **Python** (cliente de terminal)
 - **PostgreSQL** (persistência)
+- **RabbitMQ** (fila de mensagens para notificações persistentes)
 
 ---
 
@@ -188,7 +194,7 @@ Notificações por WebSocket autenticadas por JWT e integração com o API Gatew
    - Mantunção de apenas uma conexão WebSocket por cliente (fecha a anterior ao abrir nova).
    - `NotificationsService` foi adicionado nos controladores de transferência (TED e PIX). O gateway faz POST para o `ws-service` `/notify` para solicitar envio de notificações quando houver transferência.
 
-Como usar:
+### Como usar:
 
 1. Defina o segredo JWT para o `ws-service`:
 
@@ -212,7 +218,88 @@ node tools/generateToken.js 12345
 
 ---
 
-## 11. Créditos
+## 11. Implementação de Fila RabbitMQ para Notificações Persistentes
+
+Fila de mensagens utilizando RabbitMQ para garantir a persistência e entrega de notificações de transferências, mesmo quando o cliente não está conectado ao WebSocket, justamente eveitando que as notificações sejam perdidas caso ocliente se desconectasse. Esta implementação permite que as mensagens são enfileiradas e entregues quando o cliente reconecta.
+
+### Arquitetura da Solução
+
+```
+TED/PIX (SOAP/REST)
+        ↓
+   NotificationService
+        ↓
+   RabbitMQ (Fila Persistente)
+        ↓
+   ws-service (Consumer)
+        ↓
+   WebSocket → Cliente
+```
+
+**Fluxo:**
+1. Cliente realiza transferência TED (SOAP) ou PIX (REST)
+2. Backend persiste transação e publica notificação na fila RabbitMQ
+3. ws-service consome mensagens da fila
+4. Se cliente online: entrega imediata via WebSocket
+5. Se cliente offline: mensagem fica na fila até reconexão (TTL: 24h)
+6. Mensagens com erro: movidas para Dead Letter Queue (DLQ) para análise
+
+### Como usar
+
+#### 1. Iniciar Docker
+
+```bash
+docker-compose up -d
+```
+
+Isso inicia: PostgreSQL, RabbitMQ (painel em http://localhost:15672)
+
+#### 2. Iniciar Backends em Terminais Separados
+
+```bash
+# Terminal 1
+cd BancoCoreSOAP && ./mvnw spring-boot:run
+
+# Terminal 2
+cd BancoRestApi && ./mvnw spring-boot:run
+
+# Terminal 3
+cd BancoApiGateway/api-gateway && npm install && npm run start:dev
+
+# Terminal 4
+cd ws-service && npm install && export WS_JWT_SECRET=$(openssl rand -hex 32) && npm run dev
+```
+
+#### 3. Testar
+
+**Cliente Online:**
+1. Abra `BancoCliente/index.html`
+2. Cole token JWT no campo `#wsToken`
+3. Realize transferência PIX ou TED
+4. Notificação entregue imediatamente via WebSocket 
+
+**Cliente Offline:**
+1. Feche conexão WebSocket
+2. Realize transferência
+3. Reconecte ao WebSocket
+4. Notificações atrasadas entregues automaticamente 
+
+### Monitoramento
+
+**Painel RabbitMQ:** `http://localhost:15672` (guest/guest)
+- Visualizar filas e mensagens
+- Verificar Dead Letter Queue
+- Monitorar saúde da fila
+
+### Benefícios
+
+Notificações persistentes (24h TTL)
+Funciona para TED e PIX simultaneamente
+Sem perda de mensagens
+
+---
+
+## 12. Créditos
 
 **[Daniel Braga](https://github.com/DanielBR0612) & [Josephy Araújo](https://github.com/seu-usuario-github) — IFRN**
 
