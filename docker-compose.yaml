@@ -19,11 +19,16 @@ services:
     container_name: container_soap
     depends_on:
       - db
+      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/banco_dsd
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SERVER_PORT=8081
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
     ports:
       - "8081:8081" 
     networks:
@@ -34,11 +39,16 @@ services:
     container_name: container_rest
     depends_on:
       - db
+      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/banco_dsd
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SERVER_PORT=8081
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
     ports:
       - "8082:8081"
     networks:
@@ -49,6 +59,9 @@ services:
     container_name: container_ws
     ports:
       - "8083:8083"
+    environment:
+      - PORT=8083
+      - RABBITMQ_URL=amqp://rabbitmq:5672 
     networks:
       - app-network
 
@@ -76,12 +89,14 @@ services:
       - core-soap
       - rest-api
       - ws-service
+      - rabbitmq
     ports:
       - "8000:3000" 
     environment:
       - SOAP_URL=http://core-soap:8081
       - REST_URL=http://rest-api:8081
       - WS_URL=ws://ws-service:3000
+      - RABBITMQ_URL=amqp://rabbitmq:5672
       - PORT=3000
     networks:
       - app-network
