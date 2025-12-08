@@ -7,6 +7,9 @@ const WS_URL = 'ws://localhost:8083/ws'; // Ajuste a porta se seu WS estiver na 
 let token = localStorage.getItem('banco_token');
 let contaLogada = localStorage.getItem('banco_conta');
 
+// Armazena notificações
+let notificacoes = JSON.parse(localStorage.getItem('banco_notificacoes') || '[]');
+
 // --- HELPER: Cabeçalhos com Autenticação ---
 function getHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -25,6 +28,93 @@ function showAlert(message, type = 'success') {
     setTimeout(() => alertBox.classList.add('hidden'), 5000);
 }
 
+// --- GERÊNCIA DE NOTIFICAÇÕES ---
+function adicionarNotificacao(mensagem) {
+    const notificacao = {
+        id: Date.now(),
+        mensagem: mensagem.mensagem || JSON.stringify(mensagem),
+        tipo: mensagem.tipo || mensagem.event || 'info',
+        timestamp: mensagem.timestamp || new Date().toISOString(),
+        lida: false
+    };
+    
+    notificacoes.unshift(notificacao); // Adiciona no início
+    
+    // Limita a 50 notificações
+    if (notificacoes.length > 50) {
+        notificacoes = notificacoes.slice(0, 50);
+    }
+    
+    localStorage.setItem('banco_notificacoes', JSON.stringify(notificacoes));
+    atualizarInterfaceNotificacoes();
+}
+
+function atualizarInterfaceNotificacoes() {
+    const contador = document.getElementById('contadorNotificacoes');
+    const lista = document.getElementById('listaNotificacoes');
+    
+    const naoLidas = notificacoes.filter(n => !n.lida).length;
+    
+    if (naoLidas > 0) {
+        contador.textContent = naoLidas > 99 ? '99+' : naoLidas;
+        contador.classList.remove('hidden');
+    } else {
+        contador.classList.add('hidden');
+    }
+    
+    if (notificacoes.length === 0) {
+        lista.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">Nenhuma notificação</div>';
+        return;
+    }
+    
+    lista.innerHTML = notificacoes.map(notif => {
+        const data = new Date(notif.timestamp);
+        const dataFormatada = data.toLocaleString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        const icone = notif.tipo === 'nova-transacao' ? '💰' : '🔔';
+        const corFundo = notif.lida ? 'bg-white' : 'bg-blue-50';
+        
+        return `
+            <div class="${corFundo} p-4 hover:bg-gray-50 transition-colors cursor-pointer" onclick="marcarComoLida(${notif.id})">
+                <div class="flex items-start gap-3">
+                    <span class="text-2xl">${icone}</span>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-800 ${notif.lida ? '' : 'font-semibold'}">${notif.mensagem}</p>
+                        <p class="text-xs text-gray-500 mt-1">${dataFormatada}</p>
+                    </div>
+                    ${!notif.lida ? '<span class="w-2 h-2 bg-blue-500 rounded-full"></span>' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function marcarComoLida(id) {
+    const notif = notificacoes.find(n => n.id === id);
+    if (notif) {
+        notif.lida = true;
+        localStorage.setItem('banco_notificacoes', JSON.stringify(notificacoes));
+        atualizarInterfaceNotificacoes();
+    }
+}
+
+function limparNotificacoes() {
+    if (confirm('Deseja realmente limpar todas as notificações?')) {
+        notificacoes = [];
+        localStorage.removeItem('banco_notificacoes');
+        atualizarInterfaceNotificacoes();
+    }
+}
+
+window.marcarComoLida = marcarComoLida;
+window.limparNotificacoes = limparNotificacoes;
+
 // --- CONTROLE DE LOGIN (Para funcionar com o HTML único) ---
 // Se não tiver token, mostra o modal de login. Se tiver, inicia o WS.
 function verificarLogin() {
@@ -34,10 +124,31 @@ function verificarLogin() {
     if (token) {
         overlay.classList.add('hidden');
         conectarWebSocket(contaLogada);
+        atualizarInterfaceNotificacoes(); // Atualiza contador ao carregar
     } else {
         overlay.classList.remove('hidden');
     }
 }
+
+// Toggle do dropdown de notificações
+document.addEventListener('DOMContentLoaded', () => {
+    const btnNotif = document.getElementById('btnNotificacoes');
+    const dropdown = document.getElementById('dropdownNotificacoes');
+    
+    if (btnNotif && dropdown) {
+        btnNotif.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        
+        // Fecha ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btnNotif.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    }
+});
 
 // Handler do Formulário de Login
 // Handler do Formulário de Login
@@ -143,9 +254,22 @@ function conectarWebSocket(clienteId) {
                 const { valor, tipo, timestamp } = mensagem.data;
                 const valorFormatado = parseFloat(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 
-                // Toca alerta visual e sonoro (opcional)
+                // Adiciona à fila de notificações
+                adicionarNotificacao({
+                    mensagem: `Você recebeu um ${tipo} de ${valorFormatado}`,
+                    tipo: 'nova-transacao',
+                    timestamp: timestamp || new Date().toISOString()
+                });
+                
+                // Toca alerta visual
                 showAlert(`💰 RECEBIDO! ${tipo} de ${valorFormatado}`, 'success');
-                alert(`🔔 NOTIFICAÇÃO:\n\nVocê recebeu um ${tipo} de ${valorFormatado}!`);
+            } else {
+                // Outras mensagens genéricas
+                adicionarNotificacao({
+                    mensagem: mensagem.mensagem || JSON.stringify(mensagem.data || mensagem),
+                    tipo: mensagem.event || 'info',
+                    timestamp: mensagem.timestamp || new Date().toISOString()
+                });
             }
         } catch (e) {
             console.error('Erro ao processar mensagem WS', e);

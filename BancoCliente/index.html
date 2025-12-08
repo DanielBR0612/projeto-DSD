@@ -61,6 +61,29 @@
                 <div class="flex items-center gap-4">
                     <span id="labelConta" class="text-sm text-gray-600 hidden md:block"></span>
                     
+                    <!-- Botão de Notificações -->
+                    <div class="relative">
+                        <button id="btnNotificacoes" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="contadorNotificacoes" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                        
+                        <!-- Dropdown de Notificações -->
+                        <div id="dropdownNotificacoes" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="font-bold text-gray-800">Notificações</h3>
+                                <button onclick="limparNotificacoes()" class="text-xs text-red-600 hover:text-red-800">Limpar Todas</button>
+                            </div>
+                            <div id="listaNotificacoes" class="divide-y divide-gray-100">
+                                <div class="p-4 text-center text-gray-500 text-sm">
+                                    Nenhuma notificação
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <button onclick="fazerLogout()" class="px-4 py-2 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors">
                         Sair (Logout)
                     </button>
