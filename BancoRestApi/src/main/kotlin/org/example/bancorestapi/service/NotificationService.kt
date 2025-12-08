@@ -27,7 +27,7 @@ class NotificationService {
     /**
      * Publica notificação de transferência na fila RabbitMQ
      */
-    fun publishTransferenceNotification(destinatarioId: Long, valor: BigDecimal, tipo: String) {
+    fun publishTransferenceNotification(destinatarioId: Long?, valor: BigDecimal, tipo: String) {
         try {
             val notification = mapOf(
                 "destinatarioId" to destinatarioId.toString(),

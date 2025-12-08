@@ -19,6 +19,11 @@ export class QueueService implements OnModuleInit {
 
       await this.channel.assertQueue('notificacoes.transferencias', {
         durable: true,
+        arguments: {
+          'x-message-ttl': 86400000,
+          'x-dead-letter-exchange': 'notificacoes.dlx',
+          'x-dead-letter-routing-key': 'notificacoes.transferencias.dlq'
+        }
       });
 
       console.log('[Queue Service] Conectado ao RabbitMQ');
@@ -29,7 +34,7 @@ export class QueueService implements OnModuleInit {
   }
 
   async publishNotification(notification: {
-    destinatarioId: string;
+    contaDestino: string;
     valor: number;
     tipo: string;
   }) {
@@ -44,11 +49,13 @@ export class QueueService implements OnModuleInit {
         timestamp: new Date().toISOString(),
       };
 
+      console.log(`[Queue Service] Publicando para conta: ${notification.contaDestino}`);
+
       this.channel.sendToQueue('notificacoes.transferencias', Buffer.from(JSON.stringify(message)), {
         persistent: true,
       });
 
-      console.log(`[Queue Service] Notificação publicada: ${notification.destinatarioId}`);
+      console.log(`[Queue Service] Notificação publicada: ${notification.contaDestino}`);
     } catch (error) {
       console.error('[Queue Service] Erro ao publicar:', error);
     }

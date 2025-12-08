@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.time.Instant; // Importante
 
 @Service
 public class NotificationService {
@@ -25,16 +26,20 @@ public class NotificationService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    
-     //Publica notificação de transferência na fila RabbitMQ
+    // Publica notificação de transferência na fila RabbitMQ
     public void publishTransferenceNotification(String destinatarioId, java.math.BigDecimal valor, String tipo) {
         try {
             Map<String, Object> notification = new HashMap<>();
-            notification.put("destinatarioId", destinatarioId);
+            
+            notification.put("contaDestino", destinatarioId);
+            notification.put("destinatarioId", destinatarioId); // Mantém compatibilidade
+            
             notification.put("valor", valor);
             notification.put("tipo", tipo);
-            notification.put("timestamp", new java.util.Date().toInstant());
+            
+            notification.put("timestamp", Instant.now().toString());
 
+            // Envia para a fila (RabbitMQ)
             rabbitTemplate.convertAndSend(
                 "notificacoes.transferencias",
                 objectMapper.writeValueAsString(notification)
@@ -51,16 +56,16 @@ public class NotificationService {
         }
     }
 
-    //Notificação direta ao ws-service (para clientes online)
+    // Notificação direta ao ws-service (para clientes online)
     private void notifyWebSocketService(Map<String, Object> notification) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(notification, headers);
-
+            
             restTemplate.postForObject(
-                "http://localhost:8083/notify",
+                "http://ws-service:8083/notify", 
                 request,
                 String.class
             );
@@ -68,7 +73,8 @@ public class NotificationService {
             logger.info("[WebSocket] Notificação enviada direto para ws-service");
 
         } catch (Exception e) {
-            logger.info("[WebSocket] Cliente offline - mantendo na fila: " + e.getMessage());
+            // Log alterado para info, pois se falhar aqui, o RabbitMQ garante a entrega
+            logger.info("[WebSocket] Tentativa direta falhou (o RabbitMQ vai tratar): " + e.getMessage());
         }
     }
 }

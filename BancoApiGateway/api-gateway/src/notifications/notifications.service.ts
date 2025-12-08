@@ -10,14 +10,14 @@ export class NotificationsService {
   ) {}
 
   async notificarTransacao(dados: any) {
-    const { destinatarioId, valor, tipo } = dados;
+    const { contaDestino, valor, tipo } = dados;
     const url = 'http://ws-service:8083/notify'; 
 
-    console.log(`[NOTIFICAÇÃO] Enfileirando para ${destinatarioId}: R$ ${valor}`);
+    console.log(`[NOTIFICAÇÃO] Enfileirando para ${contaDestino}: R$ ${valor}`);
 
     // Publica na fila RabbitMQ
     await this.queueService.publishNotification({
-      destinatarioId,
+      contaDestino,
       valor,
       tipo,
     });
@@ -25,7 +25,7 @@ export class NotificationsService {
     // Tenta entregar via WebSocket (rota alternativa rápida)
     try {
       await this.httpService
-        .post(`http://localhost:8083/notify`, { destinatarioId, valor, tipo })
+        .post(`http://localhost:8083/notify`, { contaDestino, valor, tipo })
         .toPromise();
       console.log('✅ Notificação enviada via WebSocket');
     } catch (error) {

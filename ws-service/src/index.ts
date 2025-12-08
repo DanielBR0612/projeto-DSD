@@ -25,7 +25,7 @@ const clients = new Map<ClientId, WebSocket>();
 let channel: amqp.Channel;
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672';
 const NOTIFICATION_QUEUE = process.env.RABBITMQ_NOTIFICATION_QUEUE || 'notificacoes.transferencias';
-const DEAD_LETTER_QUEUE = 'notificacoes.transferencias.dlq'; // Dead Letter Queue
+const DEAD_LETTER_QUEUE = 'notificacoes.transferencias.dlq'; 
 
 async function connectRabbitMQ() {
   try {
@@ -43,7 +43,7 @@ async function connectRabbitMQ() {
       arguments: {
         'x-dead-letter-exchange': 'notificacoes.dlx',
         'x-dead-letter-routing-key': DEAD_LETTER_QUEUE,
-        'x-message-ttl': 86400000, // 24 horas em ms
+        'x-message-ttl': 86400000, 
       },
     });
 
@@ -54,7 +54,7 @@ async function connectRabbitMQ() {
 
     connection.on('error', (err) => {
       console.error('[RabbitMQ] Erro de conexão:', err);
-      setTimeout(() => connectRabbitMQ(), 5000); // Reconectar
+      setTimeout(() => connectRabbitMQ(), 5000); 
     });
   } catch (error) {
     console.error('[RabbitMQ] Falha ao conectar:', error);
@@ -69,58 +69,73 @@ async function consumeNotifications() {
     if (!msg) return;
 
     try {
-      const notification = JSON.parse(msg.content.toString());
-      const { destinatarioId, valor, tipo, timestamp } = notification;
+      const content = JSON.parse(msg.content.toString());
+      
+      const alvo = content.contaDestino || content.destinatarioId;
 
-      console.log(`[Queue] Processando notificação para ${destinatarioId}`);
+      if (!alvo) {
+        console.error('[Queue] ❌ Mensagem sem conta de destino. Descartando.');
+        channel.ack(msg); // Tira da fila pra não travar
+        return;
+      }
 
-      const ws = clients.get(destinatarioId);
+      console.log(`[Queue] Processando notificação para: ${alvo}`);
+
+      const ws = clients.get(alvo);
 
       if (ws && ws.readyState === WebSocket.OPEN) {
-        // Cliente online - envia imediatamente
         ws.send(
           JSON.stringify({
             event: 'nova-transacao',
-            data: { destinatarioId, valor, tipo, timestamp },
+            data: content, // Envia o payload completo
           }),
         );
-        console.log(`[WS] Notificação entregue ao cliente ${destinatarioId}`);
-        channel.ack(msg); // Remove da fila
+        console.log(`[WS] ✅ Notificação entregue ao cliente ${alvo}`);
+        channel.ack(msg); // Remove da fila (Sucesso)
       } else {
-        // Cliente offline - rejeita para reprocessar depois
-        console.log(`[WS] Cliente ${destinatarioId} offline - mantendo na fila`);
-        channel.nack(msg, false, true); // Requeue = true
+        console.log(`[WS] 💤 Cliente ${alvo} offline/desconectado.`);
+        
+        setTimeout(() => {
+            try {
+                channel.nack(msg, false, true); 
+                console.log(`[Queue] Mensagem re-enfileirada para ${alvo} (tentativa futura)`);
+            } catch (e) {
+                // Caso o canal tenha fechado nesse meio tempo
+            }
+        }, 5000); 
       }
     } catch (error) {
-      console.error('[Queue] Erro ao processar mensagem:', error);
-      channel.nack(msg, false, false); // Move para DLQ
+      console.error('[Queue] Erro crítico ao processar mensagem:', error);
+      // Se deu erro de parse ou algo grave, não adianta tentar de novo
+      channel.nack(msg, false, false); 
     }
   });
 }
 
-//HTTP Endpoints
 app.post('/notify', async (req: Request, res: Response) => {
-  const { destinatarioId, valor, tipo } = req.body;
+  // Ajustado para receber contaDestino também
+  const { contaDestino, destinatarioId, valor, tipo } = req.body;
   
-  if (!destinatarioId || !valor || !tipo) {
-    return res.status(400).json({ error: 'Dados incompletos' });
+  const target = contaDestino || destinatarioId;
+
+  if (!target || !valor || !tipo) {
+    return res.status(400).json({ error: 'Dados incompletos. Informe contaDestino.' });
   }
 
   try {
-    // Publica mensagem na fila
     const notification = {
-      destinatarioId,
+      contaDestino: target, // Padronizando
       valor,
       tipo,
       timestamp: new Date().toISOString(),
     };
 
     channel.sendToQueue(NOTIFICATION_QUEUE, Buffer.from(JSON.stringify(notification)), {
-      persistent: true, // Persiste em disco
+      persistent: true, 
       contentType: 'application/json',
     });
 
-    console.log(`[NOTIFY] Notificação enfileirada para ${destinatarioId}`);
+    console.log(`[NOTIFY] Notificação enfileirada para ${target}`);
     res.status(200).json({ ok: true, message: 'Notificação enfileirada' });
   } catch (error) {
     console.error('[NOTIFY] Erro ao enfileirar:', error);
@@ -152,30 +167,33 @@ wss.on('connection', (socket, request) => {
   const url = new URL(request.url ?? '', 'http://localhost');
   const token = url.searchParams.get('token');
   
-  const secret = process.env.WS_JWT_SECRET || 'secret';
+  const secret = process.env.WS_JWT_SECRET || 'secret'; // Use a mesma chave do Gateway!
 
   let clienteId: string | null = null;
 
   if (!token) {
+    console.log('[WS] Conexão recusada: Sem token');
     socket.close(1008, 'Token Obrigatório');
     return;
   }
 
   try {
-    // Valida o Token gerado pelo seu Gateway
     const payload = jwt.verify(token, secret) as jwt.JwtPayload;
     
-    // Pega o ID da conta do payload (campo 'sub')
-    clienteId = payload.sub as string;
+    // Pega o ID da conta do payload (campo 'sub' ou 'conta')
+    clienteId = payload.sub || payload.conta as string;
     
     if (!clienteId) {
-       socket.close(1008, 'Token sem ID de conta (sub)');
+       console.log('[WS] Conexão recusada: Token sem ID');
+       socket.close(1008, 'Token sem ID de conta');
        return;
     }
     
-    console.log(`[WS] Cliente Autenticado: ${clienteId}`);
+    console.log(`[WS] Cliente Autenticado e Conectado: ${clienteId}`);
     clients.set(clienteId, socket);
-    socket.send(JSON.stringify({ event: 'info', message: 'Conectado com sucesso!' }));
+    
+    // Feedback visual pro front
+    socket.send(JSON.stringify({ event: 'info', message: 'Conectado ao WebSocket!' }));
 
     socket.on('close', () => {
       console.log(`[WS] Cliente ${clienteId} desconectou`);
@@ -195,9 +213,6 @@ const PORT = Number(process.env.PORT || 8083);
 connectRabbitMQ().then(() => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Serviço de Notificações rodando na porta ${PORT}`);
-    console.log(`HTTP POST: http://localhost:${PORT}/notify`);
     console.log(`WebSocket: ws://localhost:${PORT}/ws`);
-    console.log(`RabbitMQ Queue: ${NOTIFICATION_QUEUE}`);
-    console.log(`Dead Letter Queue: ${DEAD_LETTER_QUEUE}`);
   });
 });

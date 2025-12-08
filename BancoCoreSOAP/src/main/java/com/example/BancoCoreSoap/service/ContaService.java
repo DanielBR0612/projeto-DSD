@@ -98,7 +98,7 @@ public class ContaService {
 		Transacao savedDebito = transacaoRepository.save(debito);
 		Transacao savedCredito = transacaoRepository.save(credito);
 
-		String clienteIdDestino = String.valueOf(contaDestino.getCliente().getId());
+		String clienteIdDestino = contaDestino.getNumeroConta();
         notificationService.publishTransferenceNotification(
             clienteIdDestino,
             request.getValor(),
