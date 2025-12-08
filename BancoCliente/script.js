@@ -1,6 +1,6 @@
 // --- CONFIGURAÇÕES ---
 // Aponta para a raiz do Gateway. Os endpoints adicionam /banco/soap ou /banco/rest
-const GATEWAY_URL = 'http://localhost:3000'; 
+const GATEWAY_URL = 'http://localhost:8000'; 
 const WS_URL = 'ws://localhost:8083/ws'; // Ajuste a porta se seu WS estiver na 8083
 
 // Recupera token e conta salvos no login

@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: postgres  
       POSTGRES_DB: banco_dsd     
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:

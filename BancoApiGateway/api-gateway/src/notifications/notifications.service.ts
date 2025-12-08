@@ -7,7 +7,7 @@ export class NotificationsService {
   constructor(private readonly httpService: HttpService) {}
 
   async notificarTransacao(dados: any) {
-    const url = 'http://localhost:8083/notify'; 
+    const url = 'http://ws-service:8083/notify'; 
 
     const payload = {
       destinatarioId: String(dados.contaDestino || dados.conta),
