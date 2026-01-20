@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Res, HttpStatus, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ComprovantesGrpcService } from '../comprovantes-grpc/comprovantes-grpc.service';
 
 @ApiTags('comprovantes')

@@ -12,6 +12,7 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/api-gateway/dist ./dist
+COPY --from=build /usr/src/app/api-gateway/proto ./proto
 COPY --from=build /usr/src/app/api-gateway/package.json ./package.json
 # Use npm install here because `npm ci` requires a package-lock.json to be present.
 # Also include --legacy-peer-deps to avoid peer dependency failures in production install.
