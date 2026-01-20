@@ -6,9 +6,12 @@
 
 Este projeto simula um **sistema bancário distribuído** usando múltiplos backends (SOAP e REST) integrados por um **API Gateway**. Permite operações típicas como criação de clientes/contas, consultas de saldo, realização de transferências (TED via SOAP, PIX via REST), além de possuir cliente web didático em HTML/Tailwind e um cliente Python para teste via terminal.
 
+**✨ NOVO**: Implementação de comunicação **gRPC** entre TypeScript e Python para geração de comprovantes de transações em PDF.
+
 - **API Gateway**: Orquestra e redireciona chamadas para os sistemas SOAP e REST.
 - **Backend SOAP**: Java Spring Boot, simula sistema legado (operações tradicionais).
 - **Backend REST**: Kotlin Spring Boot, adiciona operações modernas (PIX, extrato).
+- **Serviço gRPC**: Python, gera comprovantes de transações em PDF (comunicação gRPC).
 - **Cliente Web**: Interface HTML/Tailwind para testar todos os fluxos.
 - **Cliente Python**: Ferramenta de linha de comando para interagir com o gateway.
 
@@ -20,11 +23,22 @@ projeto-DSD/
 ├── docker-compose.yaml          # Orquestração de todos os serviços com Docker
 ├── .gitignore                   # Arquivos a ignorar no Git
 ├── README.md                    # Este arquivo
+├── GRPC_IMPLEMENTATION.md       # 📄 Documentação da implementação gRPC
+├── ARQUITETURA_GRPC.md          # 🏗️  Diagramas da arquitetura gRPC
 │
-├── BancoApiGateway/             # API Gateway (NestJS)
+├── BancoApiGateway/             # API Gateway (NestJS) - Cliente gRPC
 │   ├── Dockerfile               # Imagem Docker do Gateway
 │   ├── src/                     # Código-fonte
+│   │   ├── comprovantes-grpc/   # Cliente gRPC (TypeScript)
+│   │   └── comprovantes/        # Controller REST para comprovantes
 │   └── package.json
+│
+├── ComprovantesService/         # 🆕 Serviço de Comprovantes (Python) - Servidor gRPC
+│   ├── comprovante.proto        # Definição Protocol Buffers
+│   ├── server.py                # Servidor gRPC Python
+│   ├── requirements.txt         # Dependências Python
+│   ├── Dockerfile               # Imagem Docker do serviço
+│   └── README.md                # Documentação do serviço
 │
 ├── BancoCoreSOAP/               # Backend SOAP (Spring Boot - Java)
 │   ├── Dockerfile               # Imagem Docker do serviço SOAP
@@ -48,6 +62,7 @@ projeto-DSD/
 - **Docker Compose** (2.0+, para orquestração dos serviços)
 - **Node.js** (v18, para os serviços Nest.JS)
 - **Java 21** (para os serviços Spring Boot)
+- **Python 3.11+** (para o serviço gRPC de comprovantes)
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
 - **Python 3.9** (para o cliente terminal)
 - **PostgreSQL 14** (para persistência dos sistemas REST e SOAP)
@@ -299,7 +314,67 @@ Sem perda de mensagens
 
 ---
 
-## 12. Créditos
+## 12. Implementação gRPC - Geração de Comprovantes
+
+### 📄 Visão Geral
+
+Este projeto implementa comunicação **gRPC** entre dois serviços em **linguagens diferentes**:
+- **Servidor Python**: Gera comprovantes de transações em PDF
+- **Cliente TypeScript**: API Gateway solicita a geração via gRPC
+
+### 🎯 Funcionalidade
+
+Após realizar uma transação PIX ou TED, o usuário pode:
+1. Clicar no botão **"📄 Gerar Comprovante PDF"**
+2. O frontend envia requisição REST para o Gateway
+3. O Gateway faz chamada **gRPC** para o serviço Python
+4. O serviço Python gera um PDF profissional usando ReportLab
+5. O PDF é retornado via gRPC e baixado automaticamente
+
+### 🏗️ Arquitetura
+
+```
+Frontend (HTML/JS) 
+    ↓ HTTP REST
+API Gateway (TypeScript/NestJS)
+    ↓ gRPC (Protocol Buffers)
+Serviço Comprovantes (Python)
+    → Gera PDF (ReportLab)
+```
+
+### 📦 O que está incluído no comprovante:
+
+- ✅ Tipo de transação (PIX ou TED)
+- ✅ ID da transação
+- ✅ Data e hora formatada
+- ✅ Conta de origem e destino
+- ✅ Valor destacado
+- ✅ Design profissional com marca d'água
+
+### 🚀 Como testar:
+
+1. Inicie todos os serviços com Docker Compose:
+```bash
+docker-compose up --build
+```
+
+2. Acesse o frontend e faça login
+3. Realize uma transação PIX ou TED
+4. Clique em **"📄 Gerar Comprovante PDF"**
+5. O PDF será baixado automaticamente
+
+### 📚 Documentação Completa:
+
+- **[GRPC_IMPLEMENTATION.md](GRPC_IMPLEMENTATION.md)** - Documentação detalhada da implementação
+- **[ARQUITETURA_GRPC.md](ARQUITETURA_GRPC.md)** - Diagramas e fluxos de comunicação
+
+### 🔌 Porta do Serviço gRPC:
+
+- **50051** - Serviço de Comprovantes (Python)
+
+---
+
+## 13. Créditos
 
 **[Daniel Braga](https://github.com/DanielBR0612) & [Josephy Araújo](https://github.com/seu-usuario-github) — IFRN**
 

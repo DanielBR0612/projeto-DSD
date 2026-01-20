@@ -10,9 +10,11 @@ import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 import { NotificationsModule } from './notifications/notifications.module';
 import { QueueService } from './queue/queue.service';
+import { ComprovantesGrpcModule } from './comprovantes-grpc/comprovantes-grpc.module';
+import { ComprovantesModule } from './comprovantes/comprovantes.module';
 
 @Module({
-  imports: [BancoCoreSoapModule, BancoRestApiModule, NotificationsModule, AuthModule],
+  imports: [BancoCoreSoapModule, BancoRestApiModule, NotificationsModule, AuthModule, ComprovantesGrpcModule, ComprovantesModule],
   controllers: [AppController, BancoSoapController, BancoRestController,  AuthController],
   providers: [AppService, QueueService],
 })

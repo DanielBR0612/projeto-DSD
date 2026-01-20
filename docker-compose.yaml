@@ -90,6 +90,7 @@ services:
       - rest-api
       - ws-service
       - rabbitmq
+      - comprovantes-service
     ports:
       - "8000:3000" 
     environment:
@@ -97,7 +98,16 @@ services:
       - REST_URL=http://rest-api:8081
       - WS_URL=ws://ws-service:3000
       - RABBITMQ_URL=amqp://rabbitmq:5672
+      - GRPC_COMPROVANTES_URL=comprovantes-service:50051
       - PORT=3000
+    networks:
+      - app-network
+
+  comprovantes-service:
+    build: ./ComprovantesService
+    container_name: container_comprovantes
+    ports:
+      - "50051:50051"
     networks:
       - app-network
 
