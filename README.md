@@ -22,8 +22,6 @@ projeto-DSD/
 ├── docker-compose.yaml          # Orquestração de todos os serviços com Docker
 ├── .gitignore                   # Arquivos a ignorar no Git
 ├── README.md                    # Este arquivo
-├── GRPC_IMPLEMENTATION.md       # 📄 Documentação da implementação gRPC
-├── ARQUITETURA_GRPC.md          # 🏗️  Diagramas da arquitetura gRPC
 │
 ├── BancoApiGateway/             # API Gateway (NestJS) - Cliente gRPC
 │   ├── Dockerfile               # Imagem Docker do Gateway
@@ -32,7 +30,7 @@ projeto-DSD/
 │   │   └── comprovantes/        # Controller REST para comprovantes
 │   └── package.json
 │
-├── ComprovantesService/         # 🆕 Serviço de Comprovantes (Python) - Servidor gRPC
+├── ComprovantesService/         # Serviço de Comprovantes (Python) - Servidor gRPC
 │   ├── comprovante.proto        # Definição Protocol Buffers
 │   ├── server.py                # Servidor gRPC Python
 │   ├── requirements.txt         # Dependências Python
