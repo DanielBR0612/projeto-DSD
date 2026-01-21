@@ -6,7 +6,6 @@
 
 Este projeto simula um **sistema bancário distribuído** usando múltiplos backends (SOAP e REST) integrados por um **API Gateway**. Permite operações típicas como criação de clientes/contas, consultas de saldo, realização de transferências (TED via SOAP, PIX via REST), além de possuir cliente web didático em HTML/Tailwind e um cliente Python para teste via terminal.
 
-**✨ NOVO**: Implementação de comunicação **gRPC** entre TypeScript e Python para geração de comprovantes de transações em PDF.
 
 - **API Gateway**: Orquestra e redireciona chamadas para os sistemas SOAP e REST.
 - **Backend SOAP**: Java Spring Boot, simula sistema legado (operações tradicionais).
@@ -66,6 +65,24 @@ projeto-DSD/
 - **Kotlin** (integrado no Spring Boot, já configurado via Maven)
 - **Python 3.9** (para o cliente terminal)
 - **PostgreSQL 14** (para persistência dos sistemas REST e SOAP)
+
+### Portas Utilizadas
+
+```
+┌─────────────────┬────────┬──────────────────────┐
+│ Serviço         │ Porta  │ Protocolo            │
+├─────────────────┼────────┼──────────────────────┤
+│ API Gateway     │ 8000   │ HTTP REST            │
+│ Banco SOAP      │ 8081   │ SOAP (HTTP)          │
+│ Banco REST      │ 8082   │ HTTP REST            │
+│ WebSocket Srv   │ 8083   │ WebSocket            │
+│ RabbitMQ        │ 5672   │ AMQP                 │
+│ RabbitMQ UI     │ 15672  │ HTTP                 │
+│ PostgreSQL      │ 5433   │ PostgreSQL           │
+│ Comprovantes    │ 50051  │ gRPC (HTTP/2)        │ 
+└─────────────────┴────────┴──────────────────────┘
+```
+
 
 ---
 
@@ -308,21 +325,22 @@ cd ws-service && npm install && export WS_JWT_SECRET=$(openssl rand -hex 32) && 
 
 ### Benefícios
 
-Notificações persistentes (24h TTL)
-Funciona para TED e PIX simultaneamente
-Sem perda de mensagens
+- Notificações persistentes (24h TTL)
+- Funciona para TED e PIX simultaneamente
+- Sem perda de mensagens
+
+---
+## 12. Implementação TCP/UDP - Monitoramento de caixas eletrônicos (ATM)
 
 ---
 
-## 12. Implementação gRPC - Geração de Comprovantes
+## 13. Implementação gRPC - Geração de Comprovantes
 
-### 📄 Visão Geral
-
-Este projeto implementa comunicação **gRPC** entre dois serviços em **linguagens diferentes**:
+Nessa etapa foi implementa comunicação **gRPC** entre dois serviços em **linguagens diferentes**:
 - **Servidor Python**: Gera comprovantes de transações em PDF
 - **Cliente TypeScript**: API Gateway solicita a geração via gRPC
 
-### 🎯 Funcionalidade
+### Como funciona? 
 
 Após realizar uma transação PIX ou TED, o usuário pode:
 1. Clicar no botão **"📄 Gerar Comprovante PDF"**
@@ -331,7 +349,7 @@ Após realizar uma transação PIX ou TED, o usuário pode:
 4. O serviço Python gera um PDF profissional usando ReportLab
 5. O PDF é retornado via gRPC e baixado automaticamente
 
-### 🏗️ Arquitetura
+### Arquitetura
 
 ```
 Frontend (HTML/JS) 
@@ -342,39 +360,40 @@ Serviço Comprovantes (Python)
     → Gera PDF (ReportLab)
 ```
 
-### 📦 O que está incluído no comprovante:
+### Componentes Principais
 
-- ✅ Tipo de transação (PIX ou TED)
-- ✅ ID da transação
-- ✅ Data e hora formatada
-- ✅ Conta de origem e destino
-- ✅ Valor destacado
-- ✅ Design profissional com marca d'água
+#### 1. **Servidor gRPC (Python)** 
+- **Arquivo**: `ComprovantesService/server.py`
+- **Porta**: 50051
+- **Função**: Recebe requisições gRPC e gera PDFs usando ReportLab
+- **Tecnologias**: `grpcio`, `reportlab`
 
-### 🚀 Como testar:
+#### 2. **Cliente gRPC (TypeScript)** 
+- **Arquivo**: `BancoApiGateway/api-gateway/src/comprovantes-grpc/`
+- **Função**: Conecta-se ao servidor Python e solicita geração de comprovantes
+- **Tecnologias**: `@grpc/grpc-js`, `@grpc/proto-loader`, NestJS
 
-1. Inicie todos os serviços com Docker Compose:
-```bash
-docker-compose up --build
-```
+#### 3. **Protocol Buffers** 
+- **Arquivo**: `comprovante.proto`
+- **Define**: Interface de comunicação entre cliente e servidor
+- **Mensagens**: `ComprovanteRequest`, `ComprovanteResponse`
 
-2. Acesse o frontend e faça login
-3. Realize uma transação PIX ou TED
-4. Clique em **"📄 Gerar Comprovante PDF"**
-5. O PDF será baixado automaticamente
+#### 4. **Endpoint REST** 
+- **Rota**: `POST /comprovantes/gerar`
+- **Função**: Recebe requisição do frontend, chama gRPC, retorna PDF
 
-### 📚 Documentação Completa:
+#### Tecnologias
+- **Python** - `ReportLab` para PDF e Biblioteca `grpcio`
+- **TypeScript** - NestJS para API e Bibliotecas `@grpc/grpc-js` e `@grpc/proto-loader`
+- **Protocol Buffers** - Serialização
 
-- **[GRPC_IMPLEMENTATION.md](GRPC_IMPLEMENTATION.md)** - Documentação detalhada da implementação
-- **[ARQUITETURA_GRPC.md](ARQUITETURA_GRPC.md)** - Diagramas e fluxos de comunicação
-
-### 🔌 Porta do Serviço gRPC:
+### Porta do Serviço gRPC:
 
 - **50051** - Serviço de Comprovantes (Python)
 
 ---
 
-## 13. Créditos
+## 14. Créditos
 
 **[Daniel Braga](https://github.com/DanielBR0612) & [Josephy Araújo](https://github.com/seu-usuario-github) — IFRN**
 
