@@ -34,13 +34,33 @@ const tcpServerGateway = net.createServer((socket) => {
         if (command === 'GET_ALL') {
             socket.write(JSON.stringify(atms));
         } 
-        else if (command.startsWith('BLOCK:')) {
+        else if (command.startsWith('BLOCK:')) { 
             const id = command.split(':')[1];
-            if (atmSockets[id]) {
-                atmSockets[id].write('CMD_LOCK'); 
-                socket.write(JSON.stringify({ status: 'Comando enviado' }));
+            
+            if (atmSockets[id] && !atmSockets[id].destroyed) {
+                atmSockets[id].write('CMD_LOCK');
+                
+                if (atms[id]) {
+                    atms[id].status = 'BLOCKED'; 
+                    atms[id].lastSeen = Date.now(); 
+                    console.log(`[MONITOR] Status do ${id} forçado para BLOCKED manualmente.`);
+                }
+
+                socket.write(JSON.stringify({ status: 'Bloqueio enviado' }));
             } else {
-                socket.write(JSON.stringify({ status: 'ATM offline' }));
+                socket.write(JSON.stringify({ status: 'ATM Offline' }));
+            }
+        }
+        else if (command.startsWith('ABASTECER:')) {
+            const partes = command.split(':');
+            const id = partes[1];
+            const valor = partes[2];
+
+            if (atmSockets[id] && !atmSockets[id].destroyed) {
+                atmSockets[id].write(`CMD_REFILL:${valor}`);
+                socket.write(JSON.stringify({ status: 'Abastecimento enviado' }));
+            } else {
+                socket.write(JSON.stringify({ status: 'ATM Offline' }));
             }
         }
     });

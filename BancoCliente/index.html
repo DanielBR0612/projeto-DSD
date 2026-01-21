@@ -47,7 +47,6 @@
             <p id="loginError" class="mt-4 text-center text-red-600 text-sm hidden"></p>
         </div>
     </div>
-    <!-- Navbar -->
     <nav class="bg-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -61,7 +60,6 @@
                 <div class="flex items-center gap-4">
                     <span id="labelConta" class="text-sm text-gray-600 hidden md:block"></span>
                     
-                    <!-- Botão de Notificações -->
                     <div class="relative">
                         <button id="btnNotificacoes" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +68,6 @@
                             <span id="contadorNotificacoes" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
                         </button>
                         
-                        <!-- Dropdown de Notificações -->
                         <div id="dropdownNotificacoes" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
                             <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                                 <h3 class="font-bold text-gray-800">Notificações</h3>
@@ -92,22 +89,17 @@
         </div>
     </nav>
 
-    <!-- Main Container -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-900 mb-2">Bem-vindo ao Banco DSD</h1>
             <p class="text-gray-600">Integração de sistemas legados (SOAP) e modernos (REST) via API Gateway</p>
         </div>
 
-        <!-- Alert Box -->
         <div id="alertBox" class="hidden mb-6 p-4 rounded-lg"></div>
 
-        <!-- Cards Container -->
         <div class="grid md:grid-cols-2 gap-6">
 
-            <!-- Card 1: Criar Cliente (SOAP) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +122,6 @@
             </div>
             </div>
 
-            <!-- Card 2: Criar Nova Conta (SOAP) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +145,6 @@
             </div>
             </div>
             
-            <!-- Card 3: Consultar Saldo (SOAP) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +165,6 @@
             </div>
             </div>
 
-            <!-- Card 4: Consultar Extrato (REST) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +185,6 @@
             </div>
             </div>
 
-            <!-- Card 5: Realizar Transferência TED -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
                 <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +210,6 @@
                 </div>
             </div>
 
-            <!-- Card 6: Criar Chave PIX (REST) -->
             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
             <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
@@ -253,8 +240,7 @@
             </div>
             </div>
 
-            <!-- Card 7: Realizar Transferência PIX -->
-             <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
+            <div class="bg-white rounded-lg shadow-xl p-6 hover:shadow-2xl transition-shadow">
                 <div class="flex items-center mb-4">
                 <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -279,122 +265,88 @@
                 </div>
             </div>
 
-        <!-- Info Section -->
+        </div> <div class="mt-8 bg-white rounded-lg shadow-xl p-6 border-t-4 border-blue-600">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Monitoramento de Frota (ATMs)</h2>
+                        <p class="text-sm text-gray-600">
+                            Status via <span class="font-bold text-blue-600">UDP Heartbeat</span> | Comandos via <span class="font-bold text-red-600">TCP Socket</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span class="text-xs text-green-700 font-bold uppercase tracking-wider">Tempo Real</span>
+                </div>
+            </div>
+    
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border border-gray-100 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID Terminal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">IP Origem</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dinheiro em Caixa</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Último Sinal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ações Críticas (TCP)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-atms" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 italic">
+                                Aguardando dados via UDP...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="atualizarDashboard()" class="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Atualizar Manualmente
+                </button>
+            </div>
+        </div>
+
         <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
             <h3 class="text-xl font-bold text-gray-800 mb-4">ℹ️ Sobre o Sistema</h3>
-            <div class="grid md:grid-cols-3 gap-6 text-sm text-gray-600">
+            <div class="grid md:grid-cols-4 gap-6 text-sm text-gray-600">
                 <div>
                     <h4 class="font-bold text-gray-800 mb-2">🔧 API Gateway</h4>
-                    <p>NestJS rodando na porta 3000. Orquestra chamadas para SOAP e REST.</p>
+                    <p>NestJS (3000). Roteia HTTP, TCP e converte protocolos.</p>
                 </div>
                 <div>
                     <h4 class="font-bold text-gray-800 mb-2">☕ Backend SOAP</h4>
-                    <p>Java Spring Boot (porta 8080). Sistema legado com operações tradicionais.</p>
+                    <p>Java Spring Boot (8080). Legado para Clientes e Contas.</p>
                 </div>
                 <div>
                     <h4 class="font-bold text-gray-800 mb-2">🚀 Backend REST</h4>
-                    <p>Kotlin Spring Boot (porta 8081). Sistema com Pix e Extrato.</p>
+                    <p>Kotlin Spring Boot (8081). Moderno para Pix e Extrato.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 mb-2">📡 Infraestrutura</h4>
+                    <p>Node.js Puro (6000 UDP/6001 TCP). Telemetria de Hardware.</p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Footer -->
     <footer class="mt-12 py-6 text-center text-gray-600">
         <p>Sistema Bancário Distribuído - Projeto DSD 2025</p>
         <p class="text-sm mt-1">Daniel Braga & Josephy Cruz Araújo</p>
     </footer>
 
-    <!-- Chat Flutuante -->
-    <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
-        <!-- Botão de Chat -->
-        <button id="btnOpenChat" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all flex items-center justify-center relative">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-            <span id="chatUnreadBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-        </button>
-
-        <!-- Janela do Chat -->
-        <div id="chatWindow" class="hidden absolute bottom-20 right-0 w-96 h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            <!-- Header do Chat -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold">Chat do Banco</h3>
-                        <p class="text-xs opacity-75" id="chatStatus">Conectando...</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <select id="protocoloChat" class="bg-white/20 text-white text-xs px-2 py-1 rounded border border-white/40">
-                        <option value="rest">REST</option>
-                        <option value="tcp">TCP</option>
-                        <option value="udp">UDP</option>
-                    </select>
-                    <button id="btnCloseChat" class="hover:bg-white/20 rounded-full p-1 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Área de Mensagens -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-                <div class="text-center text-gray-500 text-sm py-8">
-                    <svg class="w-16 h-16 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                    </svg>
-                    <p>Bem-vindo ao chat!</p>
-                    <p class="text-xs mt-1">Conecte-se para começar a conversar</p>
-                </div>
-            </div>
-
-            <!-- Lista de Usuários Online (Toggle) -->
-            <div id="chatUsers" class="hidden border-t border-gray-200 bg-gray-50 p-3 max-h-32 overflow-y-auto">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-xs font-bold text-gray-700">Usuários Online</h4>
-                    <span id="userCount" class="text-xs text-gray-500">0</span>
-                </div>
-                <div id="userList" class="space-y-1"></div>
-            </div>
-
-            <!-- Input de Mensagem -->
-            <div class="border-t border-gray-200 p-4 bg-white">
-                <div class="flex items-center gap-2 mb-2">
-                    <button id="btnToggleUsers" class="text-xs text-gray-600 hover:text-blue-600 transition-colors">
-                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        Usuários
-                    </button>
-                    <button id="btnConnectChat" class="text-xs px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors font-semibold">
-                        Conectar
-                    </button>
-                    <button id="btnDisconnectChat" class="hidden text-xs px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors font-semibold">
-                        Desconectar
-                    </button>
-                </div>
-                <form id="chatForm" class="flex gap-2">
-                    <input type="text" id="chatInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed" placeholder="Digite sua mensagem..." disabled>
-                    <button type="submit" id="btnSendMessage" class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript -->
     <script src="script.js"></script>
-    <script src="chat-client.js"></script>
 </body>
 </html>
