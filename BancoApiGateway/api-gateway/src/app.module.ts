@@ -12,10 +12,13 @@ import { QueueService } from './queue/queue.service';
 import { AtmService } from './atm/atm.service';
 import { AtmController } from './atm/atm.controller';
 import { AtmModule } from './atm/atm.module';
+import { ComprovantesGrpcModule } from './comprovantes-grpc/comprovantes-grpc.module';
+import { ComprovantesModule } from './comprovantes/comprovantes.module';
 
 @Module({
-  imports: [BancoCoreSoapModule, BancoRestApiModule, NotificationsModule, AuthModule, AtmModule],
+  imports: [BancoCoreSoapModule, BancoRestApiModule, NotificationsModule, AuthModule, AtmModule, ComprovantesGrpcModule, ComprovantesModule],
   controllers: [AppController, BancoSoapController, BancoRestController,  AuthController, AtmController],
   providers: [AppService, QueueService, AtmService],
 })
+
 export class AppModule {}

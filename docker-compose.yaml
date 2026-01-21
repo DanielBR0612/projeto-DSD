@@ -68,7 +68,7 @@ services:
       - app-network
 
   rabbitmq:
-    image: rabbitmq:3.12-management
+    image: rabbitmq:3.13-management
     container_name: projeto-dsd-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -116,6 +116,7 @@ services:
       - rest-api
       - ws-service
       - rabbitmq
+      - comprovantes-service
       - atm-monitor 
     ports:
       - "8000:3000" 
@@ -124,8 +125,17 @@ services:
       - REST_URL=http://rest-api:8081
       - WS_URL=ws://ws-service:3000
       - RABBITMQ_URL=amqp://rabbitmq:5672
+      - GRPC_COMPROVANTES_URL=comprovantes-service:50051
       - PORT=3000
       - MONITOR_HOST=atm-monitor
+    networks:
+      - app-network
+
+  comprovantes-service:
+    build: ./ComprovantesService
+    container_name: container_comprovantes
+    ports:
+      - "50051:50051"
     networks:
       - app-network
 

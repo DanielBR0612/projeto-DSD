@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package comprovante;
+
+// Serviço de geração de comprovantes de transações bancárias
+service ComprovanteService {
+  // Gera um comprovante em PDF de uma transação
+  rpc GerarComprovante (ComprovanteRequest) returns (ComprovanteResponse);
+}
+
+// Requisição para gerar comprovante
+message ComprovanteRequest {
+  string tipo_transacao = 1;        // "PIX" ou "TED"
+  string conta_origem = 2;          // Número da conta de origem
+  string conta_destino = 3;         // Número da conta de destino ou chave PIX
+  double valor = 4;                 // Valor da transação
+  string data_hora = 5;             // Data e hora no formato ISO 8601
+  string id_transacao = 6;          // ID único da transação
+}
+
+// Resposta com o comprovante gerado
+message ComprovanteResponse {
+  bytes pdf_data = 1;               // Conteúdo do PDF em bytes
+  string filename = 2;              // Nome sugerido para o arquivo
+  bool success = 3;                 // Indica se foi gerado com sucesso
+  string message = 4;               // Mensagem de erro ou sucesso
+}

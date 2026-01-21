@@ -37,7 +37,9 @@
     "uuid": "3.4.0",
     "strong-soap": "^5.0.4",
     "swagger-ui-express": "^5.0.1",
-    "amqplib": "^0.10.3"
+    "amqplib": "^0.10.3",
+    "@grpc/grpc-js": "^1.10.1",
+    "@grpc/proto-loader": "^0.7.12"
   },
   "overrides": {
     "uuid": "3.4.0"

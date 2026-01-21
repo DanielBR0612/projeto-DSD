@@ -339,6 +339,8 @@ document.getElementById('formExtratoRest').addEventListener('submit', async (e) 
     }
 });
 
+// 5. Transferência TED (SOAP)
+let ultimaTransacaoTED = null;
 document.getElementById('formTransferenciaTED').addEventListener('submit', async (e) => {
     e.preventDefault();
     const body = {
@@ -359,6 +361,16 @@ document.getElementById('formTransferenciaTED').addEventListener('submit', async
             document.getElementById('resultadoTED').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultTransferenciaTED').classList.remove('hidden');
             showAlert(`✅ Transferência TED realizada!`, 'success');
+            
+            // Armazena dados da última transação para o comprovante
+            ultimaTransacaoTED = {
+                tipo_transacao: 'TED',
+                conta_origem: body.contaOrigem,
+                conta_destino: body.contaDestino,
+                valor: body.valor,
+                data_hora: new Date().toISOString(),
+                id_transacao: `TED_${Date.now()}`
+            };
         } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
@@ -398,6 +410,8 @@ document.getElementById('formCriarChavePix').addEventListener('submit', async (e
     }
 });
 
+// 7. Transferência PIX (REST)
+let ultimaTransacaoPIX = null;
 document.getElementById('formTransferenciaPIX').addEventListener('submit', async (e) => {
     e.preventDefault();
     const body = {
@@ -418,9 +432,89 @@ document.getElementById('formTransferenciaPIX').addEventListener('submit', async
             document.getElementById('resultadoPIX').textContent = JSON.stringify(data, null, 2);
             document.getElementById('resultTransferenciaPIX').classList.remove('hidden');
             showAlert(`✅ Transferência PIX realizada!`, 'success');
+            
+            // Armazena dados da última transação para o comprovante
+            ultimaTransacaoPIX = {
+                tipo_transacao: 'PIX',
+                conta_origem: body.contaOrigem,
+                conta_destino: body.chaveDestino,
+                valor: body.valor,
+                data_hora: new Date().toISOString(),
+                id_transacao: `PIX_${Date.now()}`
+            };
         } else {
             const error = await response.text();
             showAlert(`❌ Erro ${response.status}: ${error}`, 'error');
+        }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 8. Gerar Comprovante TED
+document.getElementById('btnGerarComprovanteTED').addEventListener('click', async () => {
+    if (!ultimaTransacaoTED) {
+        showAlert('❌ Nenhuma transação TED recente encontrada', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/comprovantes/gerar`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(ultimaTransacaoTED)
+        });
+
+        if (response.ok) {
+            // Faz download do PDF
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `comprovante_ted_${Date.now()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showAlert('✅ Comprovante gerado e baixado!', 'success');
+        } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ao gerar comprovante: ${error}`, 'error');
+        }
+    } catch (error) {
+        showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
+    }
+});
+
+// 9. Gerar Comprovante PIX
+document.getElementById('btnGerarComprovantePIX').addEventListener('click', async () => {
+    if (!ultimaTransacaoPIX) {
+        showAlert('❌ Nenhuma transação PIX recente encontrada', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${GATEWAY_URL}/comprovantes/gerar`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(ultimaTransacaoPIX)
+        });
+
+        if (response.ok) {
+            // Faz download do PDF
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `comprovante_pix_${Date.now()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showAlert('✅ Comprovante gerado e baixado!', 'success');
+        } else {
+            const error = await response.text();
+            showAlert(`❌ Erro ao gerar comprovante: ${error}`, 'error');
         }
     } catch (error) {
         showAlert(`❌ Erro de conexão: ${error.message}`, 'error');
