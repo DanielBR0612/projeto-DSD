@@ -67,18 +67,21 @@ projeto-DSD/
 ### Portas Utilizadas
 
 ```
-┌─────────────────┬────────┬──────────────────────┐
-│ Serviço         │ Porta  │ Protocolo            │
-├─────────────────┼────────┼──────────────────────┤
-│ API Gateway     │ 8000   │ HTTP REST            │
-│ Banco SOAP      │ 8081   │ SOAP (HTTP)          │
-│ Banco REST      │ 8082   │ HTTP REST            │
-│ WebSocket Srv   │ 8083   │ WebSocket            │
-│ RabbitMQ        │ 5672   │ AMQP                 │
-│ RabbitMQ UI     │ 15672  │ HTTP                 │
-│ PostgreSQL      │ 5433   │ PostgreSQL           │
-│ Comprovantes    │ 50051  │ gRPC (HTTP/2)        │ 
-└─────────────────┴────────┴──────────────────────┘
+┌──────────────────┬────────┬──────────────────────┐
+│ Serviço          │ Porta  │ Protocolo            │
+├──────────────────┼────────┼──────────────────────┤
+│ API Gateway      │ 8000   │ HTTP REST            │
+│ Banco SOAP       │ 8081   │ SOAP (HTTP)          │
+│ Banco REST       │ 8082   │ HTTP REST            │
+│ WebSocket Srv    │ 8083   │ WebSocket            │
+│ RabbitMQ         │ 5672   │ AMQP                 │
+│ RabbitMQ UI      │ 15672  │ HTTP                 │
+│ PostgreSQL       │ 5433   │ PostgreSQL           │
+│ Comprovantes     │ 50051  │ gRPC (HTTP/2)        │ 
+│ ATM Heartbeat    | 6000   │ UDP (Broadcast)      │
+│ ATM Commands     │ 6001   │ TCP (Conexão)        │
+│ Gateway Interface│ 6002   │ TCP (Conexão)        │
+└──────────────────┴────────┴──────────────────────┘
 ```
 
 
@@ -329,6 +332,129 @@ cd ws-service && npm install && export WS_JWT_SECRET=$(openssl rand -hex 32) && 
 
 ---
 ## 12. Implementação TCP/UDP - Monitoramento de caixas eletrônicos (ATM)
+
+Aqui deup-se a implementação de um **sistema distribuído de monitoramento de caixas eletrônicos (ATMs)** que utiliza protocolos **TCP e UDP** para comunicação em tempo real entre o gateway e uma frota de terminais espalhados geograficamente.
+
+### Arquitetura
+```
+Frontend (HTML/JS)
+    ↓ HTTP REST
+API Gateway (TypeScript/NestJS)
+    ↓ TCP (Port 6002)
+Monitor ATM (Node.js Puro)
+    ↑↓ UDP (Port 6000) - Heartbeat/Telemetria
+    ↑↓ TCP (Port 6001) - Comandos Críticos
+Cluster de ATMs (3 máquinas simuladas)
+```
+
+### Componentes Implementados
+
+#### 1. **Monitor Server** (`monitor-server.ts`)
+Servidor central que gerencia a frota de ATMs:
+
+- **UDP Server (Porta 6000)**: Recebe heartbeats periódicos de cada ATM
+  - Coleta status de saúde, saldo em caixa e IP
+  - Atualiza registro em tempo real
+  - Detecta máquinas offline via timeout
+
+- **TCP Server para ATMs (Porta 6001)**: Aceita conexões de ATMs clientes
+  - Registra máquinas quando conectam (`REGISTER:ATM-ID`)
+  - Enfileira comandos críticos para execução imediata
+  - Mantém socket aberto durante sessão
+
+- **TCP Server para Gateway (Porta 6002)**: Interface com API Gateway
+  - `GET_ALL` → Lista todas as máquinas e status
+  - `BLOCK:ATM-ID` → Envia comando de bloqueio (desligamento)
+  - `ABASTECER:ATM-ID:VALOR` → Reabastece saldo em dinheiro
+
+#### 2. **ATM Cluster** (`atm-cluster.ts`)
+Simula uma frota realista de 3 caixas eletrônicos:
+
+**Máquinas simuladas:**
+- `ATM-CENTRO-01` (R$ 50.000 inicial)
+- `ATM-SHOPPING-02` (R$ 85.000 inicial)
+- `ATM-AEROPORTO-03` (R$ 120.000 inicial)
+
+**Cada ATM executa:**
+- **Conexão TCP**: Registra-se no monitor e aguarda comandos
+- **Loop UDP**: Envia heartbeat a cada 2-3 segundos com status
+- **Simulação de Saque**: Reduz saldo em ~20% dos batidas
+- **Recepção de Comandos**: 
+  - `CMD_LOCK` → Desativa máquina e encerra sessão
+  - `CMD_REFILL:VALOR` → Adiciona dinheiro ao saldo
+
+#### 3. **Entidade ATM** (`atm.entity.ts`)
+Modelo de dados representando um caixa eletrônico:
+
+```typescript
+- id: string (identificador único)
+- ip: string (endereço IP)
+- dinheiro: number (saldo em reais)
+- status: 'ONLINE' | 'OFFLINE' | 'BLOCKED'
+- lastSeen: Date (último heartbeat recebido)
+```
+
+#### 4. **Camada REST no Gateway** (`atm.controller.ts` e `atm.service.ts`)
+
+Endpoints expostos para controle remoto:
+
+- `GET /atms` → Lista todas as máquinas com status
+- `POST /atms/block` → Envia comando TCP para bloquear um ATM
+- `POST /atms/refill` → Envia comando TCP para reabastecer dinheiro
+
+### Como Funciona o Fluxo de Dados
+
+**Cenário 1: Consultar Status**
+```
+Frontend → GET /atms 
+→ Gateway abre TCP para Monitor (6002)
+→ Envia "GET_ALL"
+→ Monitor retorna JSON com lista de ATMs
+→ Gateway retorna para Frontend
+```
+
+**Cenário 2: Bloquear ATM (Operação Crítica)**
+```
+Frontend → POST /atms/block {id: "ATM-CENTRO-01"}
+→ Gateway abre TCP para Monitor (6002)
+→ Envia "BLOCK:ATM-CENTRO-01"
+→ Monitor acha socket TCP da máquina (conectado na porta 6001)
+→ Envia "CMD_LOCK" via TCP direto
+→ ATM recebe comando, desativa sistema e envia status "BLOCKED"
+→ Máquina encerra conexões
+```
+
+### Protocolo de Heartbeat (UDP)
+
+Cada ATM envia payload JSON a cada 2-3 segundos:
+
+```json
+{
+  "id": "ATM-CENTRO-01",
+  "status": "ONLINE",
+  "dinheiro": 48950
+}
+```
+
+O Monitor registra o IP do remetente e timestamp, permitindo:
+- Detectar máquinas offline (sem heartbeat por 5s)
+- Validar saldo em tempo real
+- Mapear geolocalização (via IP)
+
+### Interface Web de Monitoramento
+
+A página `BancoCliente/index.html` inclui aba "Monitoramento de Frota (ATMs)" com:
+
+- **Tabela em Tempo Real**: Mostra todas as máquinas conectadas
+  - ID do terminal
+  - IP registrado
+  - Status (ONLINE/OFFLINE/BLOCKED)
+  - Saldo em R$
+  - Último heartbeat
+
+- **Ações Disponíveis**:
+  - 🚫 **Bloquear**: Desliga máquina via TCP (requer confirmação)
+  - 💰 **Reabastecer**: Adiciona saldo (executa via TCP)
 
 ---
 
